@@ -9,20 +9,25 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.omersari.hesaplama.databinding.RecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
+import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
     private final RecyclerViewInterface recyclerViewInterface;
 
+    //public RecipeAdapter(ArrayList<Recipe> postArrayList) {
+     //   this.recipeArrayList = postArrayList;
+    //}
 
 
-    public RecipeAdapter(List<Recipe> recipeList, RecyclerViewInterface recyclerViewInterface) {
+    public RecipeAdapter(ArrayList<Recipe> recipeList, RecyclerViewInterface recyclerViewInterface) {
         this.recipeList = recipeList;
         this.recyclerViewInterface = recyclerViewInterface;
     }
 
-    private List<Recipe> recipeList;
+    private ArrayList<Recipe> recipeList;
 
     @NonNull
     @Override
@@ -34,8 +39,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
     @Override
     public void onBindViewHolder(@NonNull RecipeHolder holder, int position) {
         holder.binding.textView1.setText(recipeList.get(position).name);
-        holder.binding.textView2.setText(recipeList.get(position).prepTime + "Preparation");
-        holder.binding.textView3.setText(recipeList.get(position).cookTime + "Cooking");
+        holder.binding.textView2.setText(recipeList.get(position).prepTime + " Dakika Hazırlama");
+        holder.binding.textView3.setText(recipeList.get(position).cookTime + " Dakika Pişirme");
+        Picasso.get().load(recipeList.get(position).downloadUrl).into(holder.binding.imageView);
         //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
     }
 

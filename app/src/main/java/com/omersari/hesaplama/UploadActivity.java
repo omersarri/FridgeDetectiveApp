@@ -76,17 +76,24 @@ public class UploadActivity extends AppCompatActivity {
                         public void onSuccess(Uri uri) {
                             String downloadUrl = uri.toString();
 
-                            String comment = binding.commentText.getText().toString();
+                            String name = binding.nameEditText.getText().toString();
+                            String ingredients = binding.ingredientsEditTextMultiLine.getText().toString();
+                            String preparation = binding.preparationEditTextMultiLine.getText().toString();
+                            String prepTime = binding.prepTimeEditTextNumber.getText().toString();
+                            String cookTime = binding.cookTimeEditTextNumber.getText().toString();
                             FirebaseUser user = auth.getCurrentUser();
                             String email = user.getEmail();
 
                             HashMap<String, Object> postData = new HashMap<>();
-                            postData.put("useremail", email);
+                            postData.put("recipeName", name);
+                            postData.put("ingredients", ingredients);
+                            postData.put("preparation", preparation);
+                            postData.put("prepTime", prepTime);
+                            postData.put("cookTime", cookTime);
                             postData.put("downloadurl", downloadUrl);
-                            postData.put("comment", comment);
                             postData.put("date", FieldValue.serverTimestamp());
 
-                            firebaseFirestore.collection("Posts").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            firebaseFirestore.collection("Recipes").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                 @Override
                                 public void onSuccess(DocumentReference documentReference) {
                                     Intent intent = new Intent(UploadActivity.this, MainActivity.class);

@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.room.Room;
+
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -17,25 +17,18 @@ import com.omersari.hesaplama.bottomnavfragments.FridgeFragment;
 import com.omersari.hesaplama.bottomnavfragments.HomeFragment;
 import com.omersari.hesaplama.bottomnavfragments.ProfileFragment;
 import com.omersari.hesaplama.bottomnavfragments.SearchFragment;
-import com.omersari.hesaplama.database.RecipeDao;
-import com.omersari.hesaplama.database.RecipeDatabase;
+
 import com.omersari.hesaplama.databinding.ActivityMainBinding;
-import com.omersari.hesaplama.model.Recipe;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
 
-    RecipeDao recipeDao;
-
-    RecipeDatabase db;
 
     private final CompositeDisposable compositeDisposable =new CompositeDisposable();
 
@@ -49,34 +42,6 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        db = Room.databaseBuilder(this, RecipeDatabase.class, "Recipe").build();
-        recipeDao = db.recipeDao();
-
-
-
-        Recipe recipe1 = new Recipe("Sulu Köfte", "Önce köfteleri hazırlayalım tepsiye biraz un serpelim.\n" +
-                "Kıymaya soğanı rendeleyelim bulguru ,karabiberi ,tuzu ve kimyonu ekleyip yoğuralım.\n" +
-                "Küçük köfteler yapıp unlanmış tepsiye koyalım.\n" +
-                "Tepsiyi sallayalım.\n" +
-                "Tencereye yağları alıp salçayı ekleyip kavuralım.\n" +
-                "Tencerenin yarısına kadar sıcak su ekleyelim.\n" +
-                "Doğranmış patates ve havuçları ekleyip 5 dakika pişirelim.\n" +
-                "Ardından köfteleri ekleyip suyu özleşene kadar orta ateşte pişirelim enson kuru nane serpelim (afiyet olsun).", 30, 35, "300 gram kıyma\n" +
-                "1 soğan\n" +
-                "2 yemek kaşığı bulgur\n" +
-                "Karabiber kimyon\n" +
-                "Tuz\n" +
-                "Biraz un (Tepsiye serpmek için)\n" +
-                "4 patates\n" +
-                "3 havuç\n" +
-                "1 yemek kaşığı salça\n" +
-                "Yarım çay bardağından az sıvı yağ\n" +
-                "1 yemek kaşığı tereyağ\n" +
-                "Kuru nane");
-
-        compositeDisposable.add(recipeDao.insert(recipe1)
-                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe());
 
 
 

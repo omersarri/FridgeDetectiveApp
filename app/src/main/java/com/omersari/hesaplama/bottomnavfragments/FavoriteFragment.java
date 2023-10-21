@@ -17,10 +17,8 @@ import android.widget.TextView;
 
 import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.adapter.FavoritesAdapter;
-import com.omersari.hesaplama.adapter.RecipeAdapter;
 import com.omersari.hesaplama.adapter.RecyclerViewInterface;
-import com.omersari.hesaplama.database.RecipeDao;
-import com.omersari.hesaplama.database.RecipeDatabase;
+
 import com.omersari.hesaplama.databinding.FragmentFavoriteBinding;
 import com.omersari.hesaplama.model.Recipe;
 
@@ -39,8 +37,7 @@ public class FavoriteFragment extends Fragment implements RecyclerViewInterface 
 
     FragmentFavoriteBinding binding;
     private CompositeDisposable compositeDisposable =new CompositeDisposable();
-    RecipeDatabase db;
-    RecipeDao recipeDao;
+
 
 
     @Override
@@ -48,16 +45,13 @@ public class FavoriteFragment extends Fragment implements RecyclerViewInterface 
                              Bundle savedInstanceState) {
         binding = FragmentFavoriteBinding.inflate(inflater,container,false);
 
-        db = Room.databaseBuilder(getActivity(),RecipeDatabase.class, "Recipe").build();
 
-        recipeDao = db.recipeDao();
-
-        getRecipes();
+        //getRecipes();
         return binding.getRoot();
 
 
     }
-
+    /*
     public void getRecipes() {
         compositeDisposable.add(recipeDao.getAll()
                 .subscribeOn(Schedulers.io())
@@ -76,7 +70,7 @@ public class FavoriteFragment extends Fragment implements RecyclerViewInterface 
 
     }
 
-
+    */
 
 
 
