@@ -7,22 +7,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.databinding.RecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
+
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
-    private final RecyclerViewInterface recyclerViewInterface;
+    private final RecipeRecyclerViewInterface recyclerViewInterface;
+    private FirebaseAuth auth;
 
     //public RecipeAdapter(ArrayList<Recipe> postArrayList) {
      //   this.recipeArrayList = postArrayList;
     //}
 
 
-    public RecipeAdapter(ArrayList<Recipe> recipeList, RecyclerViewInterface recyclerViewInterface) {
+    public RecipeAdapter(ArrayList<Recipe> recipeList, RecipeRecyclerViewInterface recyclerViewInterface) {
         this.recipeList = recipeList;
         this.recyclerViewInterface = recyclerViewInterface;
     }
@@ -33,6 +36,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
     @Override
     public RecipeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         RecipeRowBinding recyclerRowBinding = RecipeRowBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        auth = FirebaseAuth.getInstance();
         return new RecipeHolder(recyclerRowBinding, recyclerViewInterface);
     }
 
@@ -42,7 +46,15 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
         holder.binding.textView2.setText(recipeList.get(position).prepTime + " Dakika Hazırlama");
         holder.binding.textView3.setText(recipeList.get(position).cookTime + " Dakika Pişirme");
         Picasso.get().load(recipeList.get(position).downloadUrl).into(holder.binding.imageView);
-        //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
+
+        if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com")) {
+            holder.binding.deleteImageButton.setVisibility(View.VISIBLE);
+        } else {
+            holder.binding.deleteImageButton.setVisibility(View.INVISIBLE);
+        }
+
+
+
     }
 
     @Override
@@ -53,9 +65,39 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
     public class RecipeHolder extends RecyclerView.ViewHolder {
         private RecipeRowBinding binding;
-        public RecipeHolder(RecipeRowBinding binding, RecyclerViewInterface recyclerViewInterface) {
+
+        public RecipeHolder(RecipeRowBinding binding, RecipeRecyclerViewInterface recyclerViewInterface) {
             super(binding.getRoot());
             this.binding = binding;
+
+
+
+            itemView.findViewById(R.id.deleteImageButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(recyclerViewInterface != null) {
+                        int pos = getAdapterPosition();
+
+                        if(pos != RecyclerView.NO_POSITION) {
+                            recyclerViewInterface.deleteImageButtonClick(pos);
+                        }
+                    }
+                }
+            });
+
+            itemView.findViewById(R.id.favDeleteImageButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(recyclerViewInterface != null) {
+                        int pos = getAdapterPosition();
+
+                        if(pos != RecyclerView.NO_POSITION) {
+                            recyclerViewInterface.favImageButtonClick(pos);
+                        }
+                    }
+                }
+            });
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -86,6 +128,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
         }
     }
+
+
 
 
 }

@@ -1,6 +1,8 @@
 package com.omersari.hesaplama.adapter;
 
-public interface RecyclerViewInterface {
+public interface FavoriteRecyclerViewInterface {
     void onItemClick(int position);
     void onItemLongClick(int position);
+
+    void deleteImageButtonClick(int position);
 }

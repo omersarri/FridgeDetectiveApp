@@ -8,19 +8,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.omersari.hesaplama.databinding.FavRecipeRowBinding;
-import com.omersari.hesaplama.databinding.RecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
 
 import java.util.List;
 
 public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.RecipeHolder> {
-    private final RecyclerViewInterface recyclerViewInterface;
+    private final FavoriteRecyclerViewInterface favoriteRecyclerViewInterface;
 
 
 
-    public FavoritesAdapter(List<Recipe> recipeList, RecyclerViewInterface recyclerViewInterface) {
+    public FavoritesAdapter(List<Recipe> recipeList, FavoriteRecyclerViewInterface favoriteRecyclerViewInterface) {
         this.recipeList = recipeList;
-        this.recyclerViewInterface = recyclerViewInterface;
+        this.favoriteRecyclerViewInterface = favoriteRecyclerViewInterface;
     }
 
     private List<Recipe> recipeList;
@@ -29,7 +28,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Reci
     @Override
     public RecipeHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         FavRecipeRowBinding favRecipeRowBinding = FavRecipeRowBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new RecipeHolder(favRecipeRowBinding, recyclerViewInterface);
+        return new RecipeHolder(favRecipeRowBinding, favoriteRecyclerViewInterface);
     }
 
     @Override
@@ -48,18 +47,30 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Reci
 
     public class RecipeHolder extends RecyclerView.ViewHolder {
         private FavRecipeRowBinding binding;
-        public RecipeHolder(FavRecipeRowBinding binding, RecyclerViewInterface recyclerViewInterface) {
+        public RecipeHolder(FavRecipeRowBinding binding, FavoriteRecyclerViewInterface favoriteRecyclerViewInterface) {
             super(binding.getRoot());
             this.binding = binding;
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            binding.favDeleteImageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if(recyclerViewInterface != null) {
+                    if(favoriteRecyclerViewInterface != null) {
                         int pos = getAdapterPosition();
 
                         if(pos != RecyclerView.NO_POSITION) {
-                            recyclerViewInterface.onItemClick(pos);
+                            favoriteRecyclerViewInterface.deleteImageButtonClick(pos);
+                        }
+                    }
+                }
+            });
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(favoriteRecyclerViewInterface != null) {
+                        int pos = getAdapterPosition();
+
+                        if(pos != RecyclerView.NO_POSITION) {
+                            favoriteRecyclerViewInterface.onItemClick(pos);
                         }
                     }
                 }
@@ -68,11 +79,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Reci
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    if(recyclerViewInterface != null) {
+                    if(favoriteRecyclerViewInterface != null) {
                         int pos = getAdapterPosition();
 
                         if(pos != RecyclerView.NO_POSITION) {
-                            recyclerViewInterface.onItemLongClick(pos);
+                            favoriteRecyclerViewInterface.onItemLongClick(pos);
                         }
                     }
                     return true;
