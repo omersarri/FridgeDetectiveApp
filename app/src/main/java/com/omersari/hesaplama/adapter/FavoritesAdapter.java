@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.omersari.hesaplama.databinding.FavRecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Reci
         holder.binding.textView1.setText(recipeList.get(position).name);
         holder.binding.textView2.setText(recipeList.get(position).prepTime + "Preparation");
         holder.binding.textView3.setText(recipeList.get(position).cookTime + "Cooking");
-        //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
+        Picasso.get().load(recipeList.get(position).downloadUrl).into(holder.binding.imageView);        //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
     }
 
     @Override

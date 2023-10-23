@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.omersari.hesaplama.IngredientUploadActivity;
 import com.omersari.hesaplama.LoginActivity;
 import com.omersari.hesaplama.UploadActivity;
 import com.omersari.hesaplama.databinding.FragmentProfileBinding;
@@ -29,8 +30,10 @@ public class ProfileFragment extends Fragment {
 
         if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com") ){
             binding.button2.setVisibility(View.VISIBLE);
+            binding.button3.setVisibility(View.VISIBLE);
         }else{
             binding.button2.setVisibility(View.INVISIBLE);
+            binding.button3.setVisibility(View.INVISIBLE);
         }
         binding.button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +53,16 @@ public class ProfileFragment extends Fragment {
                 startActivity(intentToUpload);
             }
         });
+
+        binding.button3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intentToUpload = new Intent(getActivity(), IngredientUploadActivity.class);
+                startActivity(intentToUpload);
+            }
+        });
+
+
 
 
 

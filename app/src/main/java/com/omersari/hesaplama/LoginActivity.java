@@ -90,4 +90,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void toSignUpClick(View view) {
+        Intent intenToSignUp = new Intent(LoginActivity.this, SignUpActivity.class);
+        startActivity(intenToSignUp);
+    }
+
 }

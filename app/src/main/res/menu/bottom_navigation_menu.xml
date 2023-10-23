@@ -3,28 +3,28 @@
 
     <item
         android:id="@+id/bottom_home"
-        android:title="Home"
+        android:title="Ana Menü"
         android:icon="@drawable/nav_home" />
 
 
     <item
         android:id="@+id/bottom_search"
-        android:title="Search"
+        android:title="Ara"
         android:icon="@drawable/nav_search"/>
 
     <item
         android:id="@+id/bottom_favorites"
-        android:title="Favorites"
+        android:title="Favoriler"
         android:icon="@drawable/nav_favorite"/>
 
     <item
         android:id="@+id/bottom_fridge"
-        android:title="Fridge"
+        android:title="Dolap"
         android:icon="@drawable/nav_fridge"/>
 
     <item
         android:id="@+id/bottom_profile"
-        android:title="Profile"
+        android:title="Profil"
         android:icon="@drawable/nav_profile"/>
 
 </menu>

@@ -20,9 +20,6 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
     private final RecipeRecyclerViewInterface recyclerViewInterface;
     private FirebaseAuth auth;
 
-    //public RecipeAdapter(ArrayList<Recipe> postArrayList) {
-     //   this.recipeArrayList = postArrayList;
-    //}
 
 
     public RecipeAdapter(ArrayList<Recipe> recipeList, RecipeRecyclerViewInterface recyclerViewInterface) {

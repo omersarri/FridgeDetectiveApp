@@ -2,4 +2,11 @@
     <string name="app_name">hesaplama</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="signinpage1">Dolap Dedektifi</string>
+    <string name="signinpage2">Dolabınızı Keşfedin, Lezzetler Yaratın!</string>
+    <string name="signinpage3">Mailinizi giriniz</string>
+    <string name="signinpage4">Şifrenizi giriniz</string>
+    <string name="signinpage5">Giriş Yap</string>
+    <string name="signinpage6">Hesabınız yok mu?</string>
+    <string name="siginpage7">Kaydol</string>
 </resources>

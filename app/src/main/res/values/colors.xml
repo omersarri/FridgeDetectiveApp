@@ -7,7 +7,7 @@
     <color name="primaryColor">#ff0779ce</color>
     <color name="secondaryColor">#82C3EC</color>
     <color name="buttonColor">#472183</color>
-    <color name="backgroundColor">#F1F6F5</color>
+    <color name="backgroundColor">#FFFFFF</color>
     <color name="darkGrey">#5A5A5A</color>
     <color name="green">#42f569</color>
     <color name="yellow">#ecf542</color>
@@ -17,5 +17,7 @@
     <color name="light_blue_200">#FF81D4FA</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
+    <color name="border_color">#cecece</color>
+
 
 </resources>
