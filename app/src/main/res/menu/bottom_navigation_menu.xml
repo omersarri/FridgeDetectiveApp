@@ -9,8 +9,8 @@
 
     <item
         android:id="@+id/bottom_search"
-        android:title="Ara"
-        android:icon="@drawable/nav_search"/>
+        android:title="Üret"
+        android:icon="@drawable/baseline_auto_awesome_24"/>
 
 
     <item

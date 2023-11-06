@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.adapter.ChatGptAdapter;
+import com.omersari.hesaplama.database.LocalDataManager;
 import com.omersari.hesaplama.databinding.FragmentProfileBinding;
 import com.omersari.hesaplama.databinding.FragmentSearchBinding;
 import com.omersari.hesaplama.model.ChatGpt;
@@ -44,6 +45,8 @@ public class SearchFragment extends Fragment {
     TextView recipeText;
     FragmentSearchBinding binding;
 
+    LocalDataManager localDataManager;
+
     public static final MediaType JSON
             = MediaType.get("application/json; charset=utf-8");
     OkHttpClient client = new OkHttpClient().newBuilder()
@@ -58,19 +61,29 @@ public class SearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentSearchBinding.inflate(inflater,container,false);
-
-
-
         recipeText = binding.recipeText;
+        localDataManager = new LocalDataManager();
+        String refRecipe = localDataManager.getSharedPreference(getActivity().getApplicationContext(),"recipe", "");
+        if(refRecipe.equals("")){
+            System.out.println("Hata");
+        }else{
+            recipeText.setText(refRecipe);
+        }
+
+
+
+
+
+
 
         //setup recycler view
 
 
-        binding.button.setOnClickListener((v)->{
+        binding.imageButton.setOnClickListener((v)->{
             String question = "Bana bir yemek tarifi öner.";
             callAPI(question);
         });
-        // Inflate the layout for this fragmenthow to get variables from chatgpt answer
+
         return binding.getRoot();
     }
     void addToChat(String message){
@@ -78,6 +91,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void run() {
                 recipeText.setText(message);
+                localDataManager.setSharedPreference(getActivity().getApplicationContext(), "recipe", message);
             }
         });
     }
@@ -108,7 +122,7 @@ public class SearchFragment extends Fragment {
         RequestBody body = RequestBody.create(jsonBody.toString(),JSON);
         Request request = new Request.Builder()
                 .url("https://api.openai.com/v1/chat/completions")
-                .header("Authorization","Bearer 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")
+                .header("Authorization","Bearer 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")
                 .post(body)
                 .build();
 
