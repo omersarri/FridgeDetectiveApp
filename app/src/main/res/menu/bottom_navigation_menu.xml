@@ -12,10 +12,6 @@
         android:title="Ara"
         android:icon="@drawable/nav_search"/>
 
-    <item
-        android:id="@+id/bottom_favorites"
-        android:title="Favoriler"
-        android:icon="@drawable/nav_favorite"/>
 
     <item
         android:id="@+id/bottom_fridge"

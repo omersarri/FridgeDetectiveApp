@@ -66,29 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    public void signUpClicked(View view) {
-        String email = binding.emailText.getText().toString();
-        String password = binding.passwordText.getText().toString();
 
-        if(email.equals("") || password.equals("")){
-            Toast.makeText(this, "Enter email and password", Toast.LENGTH_SHORT).show();
-        }else{
-            auth.createUserWithEmailAndPassword(email,password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                @Override
-                public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-
-        }
-    }
 
     public void toSignUpClick(View view) {
         Intent intenToSignUp = new Intent(LoginActivity.this, SignUpActivity.class);

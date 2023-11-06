@@ -41,6 +41,8 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation ("com.squareup.picasso:picasso:2.8")
 
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+
 
     implementation ("androidx.room:room-runtime:2.5.2")
     implementation("androidx.navigation:navigation-ui:2.6.0")

@@ -71,7 +71,7 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
 
 
     private void getData() {
-        firebaseFirestore.collection("Ingredients").orderBy("recipeName", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        firebaseFirestore.collection("Ingredients").orderBy("recipeName", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if(error != null){

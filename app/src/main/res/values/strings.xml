@@ -9,4 +9,11 @@
     <string name="signinpage5">Giriş Yap</string>
     <string name="signinpage6">Hesabınız yok mu?</string>
     <string name="siginpage7">Kaydol</string>
+    <string name="signuppage1">Kaydol Ve Tarifleri Keşfet!</string>
+    <string name="signuppage2">Ad Soyad giriniz</string>
+    <string name="signuppage3">Mailinizi giriniz</string>
+    <string name="signuppage4">Şifrenizi giriniz</string>
+    <string name="signuppage5">Kaydol</string>
+    <string name="signuppage6">Zaten bir hesabınız var mı?</string>
+    <string name="signuppage7">Giriş Yap</string>
 </resources>

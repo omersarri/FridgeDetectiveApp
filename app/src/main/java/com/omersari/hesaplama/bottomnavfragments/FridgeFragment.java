@@ -41,7 +41,6 @@ import java.util.Map;
 public class FridgeFragment extends Fragment implements IngredientRecyclerViewInterface {
     FragmentFridgeBinding binding;
 
-    GridView gridView;
     FirebaseFirestore firebaseFirestore;
 
     ArrayList<Ingredient> ingredientArrayList;
@@ -93,7 +92,7 @@ public class FridgeFragment extends Fragment implements IngredientRecyclerViewIn
 
     private void getData() {
 
-        firebaseFirestore.collection("Users").document(email).collection("Ingredients").orderBy("recipeName", Query.Direction.DESCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        firebaseFirestore.collection("Users").document(email).collection("Ingredients").orderBy("recipeName", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                 if(error != null){

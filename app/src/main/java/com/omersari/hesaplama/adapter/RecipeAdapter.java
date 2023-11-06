@@ -1,8 +1,10 @@
 package com.omersari.hesaplama.adapter;
 
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,6 +14,7 @@ import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.databinding.RecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 
@@ -40,9 +43,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
     @Override
     public void onBindViewHolder(@NonNull RecipeHolder holder, int position) {
         holder.binding.textView1.setText(recipeList.get(position).name);
-        holder.binding.textView2.setText(recipeList.get(position).prepTime + " Dakika Hazırlama");
+        holder.binding.textView2.setText(recipeList.get(position).prepTime + " Dakika Hazırlık");
         holder.binding.textView3.setText(recipeList.get(position).cookTime + " Dakika Pişirme");
         Picasso.get().load(recipeList.get(position).downloadUrl).into(holder.binding.imageView);
+        holder.binding.recipeMatched.setText(recipeList.get(position).matchedIngredient + " Malzeme İle Eşleşti");
 
         if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com")) {
             holder.binding.deleteImageButton.setVisibility(View.VISIBLE);

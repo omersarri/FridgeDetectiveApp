@@ -56,9 +56,6 @@ public class MainActivity extends AppCompatActivity {
                         } else if(R.id.bottom_search == item.getItemId()){
                             openFragment(new SearchFragment());
                             item.setChecked(true);
-                        } else if(R.id.bottom_favorites == item.getItemId()){
-                            openFragment(new FavoriteFragment());
-                            item.setChecked(true);
                         } else if(R.id.bottom_fridge == item.getItemId()){
                             openFragment(new FridgeFragment());
                             item.setChecked(true);

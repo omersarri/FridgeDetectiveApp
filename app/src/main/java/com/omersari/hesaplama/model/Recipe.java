@@ -14,6 +14,7 @@ public class Recipe {
 
     public String ingredients;
     public String downloadUrl;
+    public int matchedIngredient=0;
 
 
 
@@ -28,4 +29,6 @@ public class Recipe {
         this.downloadUrl = downloadUrl;
 
     }
+
+
 }

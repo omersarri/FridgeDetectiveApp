@@ -82,9 +82,9 @@ public class IngredientUploadActivity extends AppCompatActivity {
                             postData.put("downloadurl", downloadUrl);
                             postData.put("date", FieldValue.serverTimestamp());
 
-                            firebaseFirestore.collection("Ingredients").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            firebaseFirestore.collection("Ingredients").document(name).set(postData).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onSuccess(DocumentReference documentReference) {
+                                public void onSuccess(Void aVoid) {
                                     Intent intent = new Intent(IngredientUploadActivity.this, MainActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     startActivity(intent);
