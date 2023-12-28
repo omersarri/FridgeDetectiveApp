@@ -9,18 +9,6 @@
     style="@style/ScreenBackground">
 
 
-    <ImageButton
-        android:id="@+id/imageButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/baseline_cached_24"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.686"
-        app:layout_constraintStart_toEndOf="@+id/textView7"
-        app:layout_constraintTop_toBottomOf="@+id/cardView"
-        app:layout_constraintVertical_bias="0.0" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -71,7 +59,6 @@
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="5dp"
                 android:fontFamily="@font/work_sans"
-                android:text="Dakika Pişirme"
                 style="@style/TextColor"
                 android:textSize="14sp"
                 app:layout_constraintStart_toEndOf="@+id/prepTimeTextView"
@@ -82,7 +69,6 @@
                 android:layout_width="369dp"
                 android:layout_height="145dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/tomato_soup"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -93,7 +79,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:fontFamily="@font/roboto_mono"
-                android:text="Domates Çorbası"
                 style="@style/TextColor"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -107,10 +92,21 @@
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
                 android:fontFamily="@font/work_sans"
-                android:text="Dakika Hazırlık"
                 style="@style/TextColor"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/recipeNameTextView" />
+
+            <TextView
+                android:id="@+id/servingTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/work_sans"
+                style="@style/TextColor"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@id/cookTimeTextView"
                 app:layout_constraintTop_toBottomOf="@+id/recipeNameTextView" />
 
 

@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
         userManager.getUserInfo(new UserManager.GetUserInfoCallback() {
             @Override
             public void onSuccess() {
-
+                openFragment(new HomeFragment());
+                bottomNavBarSelector();
             }
 
             @Override
@@ -61,8 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        openFragment(new HomeFragment());
-        bottomNavBarSelector();
+
 
 
 

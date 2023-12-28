@@ -1,8 +1,9 @@
 package com.omersari.hesaplama.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Ingredient {
+public class Ingredient implements Serializable {
 
     private String id;
 

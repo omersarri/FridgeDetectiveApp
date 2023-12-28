@@ -7,9 +7,10 @@ package com.omersari.hesaplama.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Recipe {
+public class Recipe implements Serializable {
 
     private String id;
     private String name;
@@ -18,9 +19,16 @@ public class Recipe {
     private String cookTime;
 
 
+
+    private String serving;
+
+
     private String ingredients;
     private String downloadUrl;
-    private int matchedIngredient=0;
+
+
+
+    private ArrayList<Ingredient> matchedIngredient = new ArrayList<>();
     private ArrayList<String> whoFavorited = new ArrayList<>();
 
     public Recipe() {
@@ -84,13 +92,6 @@ public class Recipe {
         this.downloadUrl = downloadUrl;
     }
 
-    public int getMatchedIngredient() {
-        return matchedIngredient;
-    }
-
-    public void setMatchedIngredient(int matchedIngredient) {
-        this.matchedIngredient = matchedIngredient;
-    }
 
     public ArrayList<String> getWhoFavorited() {
         return whoFavorited;
@@ -98,6 +99,22 @@ public class Recipe {
 
     public void setWhoFavorited(ArrayList<String> whoFavorited) {
         this.whoFavorited = whoFavorited;
+    }
+
+    public String getServing() {
+        return serving;
+    }
+
+    public void setServing(String serving) {
+        this.serving = serving;
+    }
+
+    public void setMatchedIngredient(ArrayList<Ingredient> matchedIngredient) {
+        this.matchedIngredient = matchedIngredient;
+    }
+
+    public ArrayList<Ingredient> getMatchedIngredient() {
+        return matchedIngredient;
     }
 
 

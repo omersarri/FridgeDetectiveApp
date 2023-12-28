@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.omersari.hesaplama.R;
@@ -48,27 +49,33 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
     private RecipeAdapter recipeAdapter;
     private FragmentHomeBinding binding;
-    private ArrayList<Recipe> recipeList;
+    private ArrayList<Recipe> matchedRecipeList;
+    private ArrayList<Recipe> allRecipeList;
     private ArrayList<Ingredient> ingredientList;
     private LocalDataManager localDataManager;
     private LocalDate date = null;
     private String refRandomNo;
     private RecipeManager recipeManager;
     private IngredientManager ingredientManager;
-    private UserManager userManager;
-    private User currentUser;
+
+    private FirebaseAuth auth;
+    private String email;
     FirebaseFirestore firebaseFirestore;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        recipeList = new ArrayList<>();
+        matchedRecipeList = new ArrayList<>();
+        allRecipeList = new ArrayList<>();
         ingredientList = new ArrayList<>();
         ingredientManager = IngredientManager.getInstance();
         recipeManager = RecipeManager.getInstance();
-        userManager = UserManager.getInstance();
-        currentUser = userManager.getCurrentUser();
+        auth = FirebaseAuth.getInstance();
+
+        email = auth.getCurrentUser().getEmail();
+
+
         firebaseFirestore = FirebaseFirestore.getInstance();
         localDataManager = new LocalDataManager();
     }
@@ -86,9 +93,13 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
         binding.recipeNameTextView.setVisibility(View.INVISIBLE);
         binding.prepTimeTextView.setVisibility(View.INVISIBLE);
         binding.cookTimeTextView.setVisibility(View.INVISIBLE);
+        binding.servingTextView.setVisibility(View.INVISIBLE);
 
-        getData();
-        findButtonClick();
+        getUserIngredients();
+
+
+
+
 
 
         return binding.getRoot();
@@ -111,6 +122,7 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
                 binding.recipeNameTextView.setText(recipeArrayList.get(Integer.valueOf(refRandomNo)).getName());
                 binding.prepTimeTextView.setText(recipeArrayList.get(Integer.valueOf(refRandomNo)).getPrepTime() + " Dakika Hazırlık");
                 binding.cookTimeTextView.setText(recipeArrayList.get(Integer.valueOf(refRandomNo)).getCookTime() + " Dakika Pişirme");
+                binding.servingTextView.setText(recipeArrayList.get(Integer.valueOf(refRandomNo)).getServing() + " Kişilik");
                 Picasso.get().load(recipeArrayList.get(Integer.valueOf(refRandomNo)).getDownloadUrl()).into(binding.dailyImageView);
             } else{
                 localDataManager.setSharedPreference(getActivity().getApplicationContext(), "date",date.toString());
@@ -122,7 +134,9 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
         binding.dailyImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClick(Integer.valueOf(refRandomNo));
+                Intent intent = new Intent(getActivity(), RecipeDetailsActivity.class);
+                intent.putExtra("clickedRecipe",allRecipeList.get(Integer.valueOf(refRandomNo)));
+                startActivity(intent);
 
             }
 
@@ -134,32 +148,13 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
 
 
-    private void getData() {
-        recipeManager.getRecipes(new RecipeManager.GetRecipesCallback() {
-            @Override
-            public void onSuccess(ArrayList<Recipe> recipeArrayList) {
-                recipeList = recipeArrayList;
-                binding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recipeAdapter = new RecipeAdapter(recipeList, (RecipeRecyclerViewInterface) HomeFragment.this);
-                binding.recyclerView.setAdapter(recipeAdapter);
-                dailyRecipe(recipeList);
-                binding.dailyImageView.setVisibility(View.VISIBLE);
-
-                binding.recipeNameTextView.setVisibility(View.VISIBLE);
-                binding.prepTimeTextView.setVisibility(View.VISIBLE);
-                binding.cookTimeTextView.setVisibility(View.VISIBLE);
-                binding.progressBar.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onFailure(String errorMessage) {
-
-            }
-        });
-        ingredientManager.getIngredients(new IngredientManager.GetIngredientsCallback() {
+    private void getUserIngredients() {
+        ingredientManager.getUserIngredients(email, new IngredientManager.GetIngredientsCallback() {
             @Override
             public void onSuccess(ArrayList<Ingredient> ingredientArrayList) {
-                ingredientList = ingredientArrayList;
+                ingredientList.addAll(ingredientArrayList) ;
+                System.out.println(ingredientArrayList.get(0));
+                getRecipes();
             }
 
             @Override
@@ -167,7 +162,61 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
                 Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+
+
+
     };
+
+    private void getRecipes() {
+        recipeManager.getRecipes(new RecipeManager.GetRecipesCallback() {
+            @Override
+            public void onSuccess(ArrayList<Recipe> recipeArrayList) {
+
+                allRecipeList.addAll(recipeArrayList);
+                for(Recipe recipe : recipeArrayList) {
+                    ArrayList<Ingredient> matchedIngredients = new ArrayList<>();
+                    for(Ingredient ingredient : ingredientList){
+                        if(recipe.getIngredients().toLowerCase().contains(ingredient.getName().toLowerCase())){
+                            matchedIngredients.add(ingredient);
+                            System.out.println("düzelditldi");
+                        }
+                    }
+                    recipe.setMatchedIngredient(matchedIngredients);
+                }
+
+                for (Recipe recipe : recipeArrayList){
+                    if(recipe.getMatchedIngredient().size() != 0){
+                        matchedRecipeList.add(recipe);
+                        System.out.println("eklendi");
+                    }
+                }
+
+                binding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                recipeAdapter = new RecipeAdapter(matchedRecipeList, (RecipeRecyclerViewInterface) HomeFragment.this);
+                binding.recyclerView.setAdapter(recipeAdapter);
+                dailyRecipe(allRecipeList);
+                binding.dailyImageView.setVisibility(View.VISIBLE);
+
+                binding.recipeNameTextView.setVisibility(View.VISIBLE);
+                binding.prepTimeTextView.setVisibility(View.VISIBLE);
+                binding.cookTimeTextView.setVisibility(View.VISIBLE);
+                binding.progressBar.setVisibility(View.INVISIBLE);
+                binding.servingTextView.setVisibility(View.VISIBLE);
+
+                recipeAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                System.out.println(errorMessage);
+                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+
 
 
 
@@ -182,12 +231,7 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(getActivity(), RecipeDetailsActivity.class);
-        intent.putExtra("recipeName",recipeList.get(position).getName());
-        intent.putExtra("prepTime",recipeList.get(position).getPrepTime());
-        intent.putExtra("cookTime",recipeList.get(position).getCookTime());
-        intent.putExtra("ingredients",recipeList.get(position).getIngredients());
-        intent.putExtra("preparation",recipeList.get(position).getPreparation());
-        intent.putExtra("downloadUrl", recipeList.get(position).getDownloadUrl());
+        intent.putExtra("clickedRecipe",matchedRecipeList.get(position));
         startActivity(intent);
 
     }
@@ -199,7 +243,7 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
     @Override
     public void deleteImageButtonClick(int position) {
-        recipeManager.deleteRecipe(recipeList.get(position).getId(), new RecipeManager.DeleteRecipeCallback() {
+        recipeManager.deleteRecipe(matchedRecipeList.get(position).getId(), new RecipeManager.DeleteRecipeCallback() {
             @Override
             public void onSuccess() {
                 recipeAdapter.notifyItemRemoved(position);
@@ -215,49 +259,18 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
     @Override
     public void favImageButtonClick(int position) {
-        Recipe clickedRecipe = recipeList.get(position);
+        Recipe clickedRecipe = matchedRecipeList.get(position);
         ArrayList<String> whoFavorited = clickedRecipe.getWhoFavorited();
 
-        if (whoFavorited.contains(currentUser.getEmail())) {
-            whoFavorited.remove(currentUser.getEmail());
+        if (whoFavorited.contains(email)) {
+            whoFavorited.remove(email);
 
         } else {
-            whoFavorited.add(currentUser.getEmail());
+            whoFavorited.add(email);
         }
         firebaseFirestore.collection("Recipes").document(clickedRecipe.getId()).update("whoFavorited", whoFavorited);
         recipeAdapter.notifyItemChanged(position);
     }
 
 
-    public void findButtonClick(){
-
-        binding.imageButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                int sayac = 0;
-                for(Recipe recipe : recipeList){
-                    String recipeIngredient = recipe.getIngredients().toLowerCase();
-                    for(Ingredient ingredient : ingredientList){
-                        String ingredientName = ingredient.getName().toLowerCase();
-                        if(recipeIngredient.contains(ingredientName)){
-                            //System.out.println(recipe.name +" "+ ingredient.name );
-                            sayac++;
-                        }else{
-                            //System.out.println("yok" );
-                        }
-                    }
-                    recipe.setMatchedIngredient(sayac);
-                    recipeAdapter.notifyDataSetChanged();
-                    sayac =0;
-                }
-            }
-        });
-    }
-
-    class RecipeComparator implements java.util.Comparator<Recipe> {
-        @Override
-        public int compare(Recipe a, Recipe b) {
-            return a.getMatchedIngredient() - b.getMatchedIngredient();
-        }
-    }
 }

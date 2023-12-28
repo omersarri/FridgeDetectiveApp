@@ -48,7 +48,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
         holder.binding.textView2.setText(recipeList.get(position).getPrepTime() + " Dakika Hazırlık");
         holder.binding.textView3.setText(recipeList.get(position).getCookTime() + " Dakika Pişirme");
         Picasso.get().load(recipeList.get(position).getDownloadUrl()).into(holder.binding.imageView);
-        holder.binding.recipeMatched.setText(recipeList.get(position).getMatchedIngredient() + " Malzeme İle Eşleşti");
+        holder.binding.recipeMatched.setText(recipeList.get(position).getMatchedIngredient().size() + " Malzeme İle\nEşleşti");
 
         ArrayList<String> whoFavorited = recipeList.get(position).getWhoFavorited();
 

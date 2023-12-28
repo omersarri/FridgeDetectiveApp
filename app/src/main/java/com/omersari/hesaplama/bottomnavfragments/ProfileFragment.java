@@ -56,6 +56,9 @@ import com.omersari.hesaplama.model.Recipe;
 import com.omersari.hesaplama.model.RecipeManager;
 import com.omersari.hesaplama.model.User;
 import com.omersari.hesaplama.model.UserManager;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -96,7 +99,21 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
 
         binding = FragmentProfileBinding.inflate(inflater,container,false);
         binding.textView9.setText(currentUser.getName());
-        Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic);
+        //Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic);
+
+        Picasso.get().load(currentUser.getProfilePic()).networkPolicy(NetworkPolicy.OFFLINE).into(binding.userProfilePic, new Callback() {
+            @Override
+            public void onSuccess() {
+                Log.d("veri","veri"); // Eğer image daha önce çekilmiş ise client sunucuya gitmeden imageyi kullanıcıya göstermiş olacak
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+                Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic); // Eğer image cachelenmemiş ise client sunucuya gidip imageyi cacheleyecek
+            }
+        });
+
         if(currentUser.getEmail().equals("omersari@hotmail.com") ){
             binding.button2.setVisibility(View.VISIBLE);
             binding.button3.setVisibility(View.VISIBLE);

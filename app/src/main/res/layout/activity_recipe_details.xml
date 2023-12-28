@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:elevation="10dp"
                 android:text="Tarif ismi"
-                android:textSize="48sp"
+                android:textSize="35sp"
                 android:textStyle="bold"
                 style="@style/TextColor"/>
 
@@ -46,13 +46,14 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/ImageColor"
                     android:src="@drawable/baseline_access_time_24"
                     android:layout_marginRight="10dp"/>
                 <TextView
                     android:id="@+id/prepTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10 Dakika Hazırlık"
+
                     android:layout_marginRight="20dp"
                     style="@style/TextColor"
                     />
@@ -60,18 +61,37 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    style="@style/ImageColor"
                     android:src="@drawable/baseline_access_time_24"
                     android:layout_marginRight="10dp"/>
                 <TextView
                     android:id="@+id/cookTimeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="10 Dakika Pişirme"
+
                     style="@style/TextColor"
                     />
 
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/ImageColor"
+                    android:src="@drawable/person_fill"
+                    android:layout_marginRight="10dp"/>
+                <TextView
+                    android:id="@+id/servingTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
+                    style="@style/TextColor"
+                    />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -123,25 +143,7 @@
 
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
 
-        <ImageButton
-            android:id="@+id/speakTextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:onClick="speakButtonClick"
-            android:src="@drawable/baseline_volume_up_24" />
-
-    </LinearLayout>
 
 
 

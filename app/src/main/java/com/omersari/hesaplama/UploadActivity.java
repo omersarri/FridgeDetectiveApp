@@ -64,7 +64,8 @@ public class UploadActivity extends AppCompatActivity {
         String preparation = binding.preparationEditTextMultiLine.getText().toString();
         String prepTime = binding.prepTimeEditTextNumber.getText().toString();
         String cookTime = binding.cookTimeEditTextNumber.getText().toString();
-        recipeManager.addRecipe(imageData, name, ingredients, preparation, prepTime, cookTime, new RecipeManager.AddRecipeCallback() {
+        String serving = binding.servingEditTextNumber.getText().toString();
+        recipeManager.addRecipe(imageData, name, ingredients, preparation, prepTime, cookTime, serving, new RecipeManager.AddRecipeCallback() {
             @Override
             public void onSuccess() {
                 Intent intent = new Intent(UploadActivity.this, MainActivity.class);

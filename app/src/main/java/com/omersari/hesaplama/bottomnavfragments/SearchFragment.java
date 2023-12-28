@@ -224,6 +224,7 @@ public class SearchFragment extends Fragment {
                         ingredients = ingredients + ingredient.getName() + ", ";
 
                     }
+                    System.out.println(ingredients+ "sdkjnasdgasg");
                 }
             }
         });
