@@ -30,7 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.omersari.hesaplama.databinding.ActivityIngredientUploadBinding;
-
+import com.omersari.hesaplama.model.IngredientManager;
 
 
 import java.util.HashMap;
@@ -44,68 +44,34 @@ public class IngredientUploadActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> activityResultLauncher;
     ActivityResultLauncher<String> permissionLauncher;
 
-    private FirebaseStorage firebaseStorage;
-    private FirebaseFirestore firebaseFirestore;
-    private StorageReference storageReference;
+    private IngredientManager ingredientManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityIngredientUploadBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+
+        ingredientManager = IngredientManager.getInstance();
         registerLauncher();
-        firebaseStorage = FirebaseStorage.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        storageReference = firebaseStorage.getReference();
     }
 
     public void uploadButtonClicked(View view) {
-        if(imageData != null) {
+        String name = binding.nameEditText.getText().toString();
+        ingredientManager.addIngredient(imageData, name, new IngredientManager.AddIngredientCallback() {
+            @Override
+            public void onSuccess() {
+                Intent intent = new Intent(IngredientUploadActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
 
-            //universal unique id
-            UUID uuid = UUID.randomUUID();
-            String imageName = "images/" + uuid + ".jpg";
-            storageReference.child(imageName).putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    //Download url
-                    StorageReference newReferance = firebaseStorage.getReference(imageName);
-                    newReferance.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String downloadUrl = uri.toString();
-
-                            String name = binding.nameEditText.getText().toString();
-
-                            HashMap<String, Object> postData = new HashMap<>();
-                            postData.put("recipeName", name);
-                            postData.put("downloadurl", downloadUrl);
-                            postData.put("date", FieldValue.serverTimestamp());
-
-                            firebaseFirestore.collection("Ingredients").document(name).set(postData).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Intent intent = new Intent(IngredientUploadActivity.this, MainActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(intent);
-
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(IngredientUploadActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(IngredientUploadActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(IngredientUploadActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     public void selectImage(View view) {
 

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/backgroundColor">
+    style="@style/ScreenBackground">
 
 
     <TextView
@@ -16,6 +16,7 @@
         android:layout_marginTop="5dp"
         android:fontFamily="@font/roboto_mono"
         android:text="Profilim"
+        style="@style/TextColor"
         android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
@@ -50,16 +51,51 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/userProfilePic"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintImageLayout"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_marginTop="25dp"
-        android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        android:background="@drawable/user_pic"/>
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
+        <ImageView
+            android:id="@+id/editProfilePicButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/pencil_square"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:cardCornerRadius="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/userProfilePic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/user_pic"
+                android:scaleType="centerCrop"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+
+        </androidx.cardview.widget.CardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
 
 
     <TextView
@@ -69,10 +105,11 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/roboto_medium"
         android:text="TextView"
+        style="@style/TextColor"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/userProfilePic" />
+        app:layout_constraintTop_toBottomOf="@+id/constraintImageLayout" />
 
     <TextView
         android:id="@+id/textView15"

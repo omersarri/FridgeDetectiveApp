@@ -33,6 +33,9 @@ import com.omersari.hesaplama.adapter.IngredientRecyclerViewInterface;
 import com.omersari.hesaplama.adapter.IngredientsAdapter;
 import com.omersari.hesaplama.databinding.FragmentFridgeBinding;
 import com.omersari.hesaplama.model.Ingredient;
+import com.omersari.hesaplama.model.IngredientManager;
+import com.omersari.hesaplama.model.User;
+import com.omersari.hesaplama.model.UserManager;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -41,20 +44,23 @@ import java.util.Map;
 public class FridgeFragment extends Fragment implements IngredientRecyclerViewInterface {
     FragmentFridgeBinding binding;
 
-    FirebaseFirestore firebaseFirestore;
-
-    ArrayList<Ingredient> ingredientArrayList;
+    ArrayList<Ingredient> ingredientList;
 
     IngredientsAdapter ingredientsAdapter;
 
-    FirebaseAuth auth;
 
-    String email;
+
+    private IngredientManager ingredientManager;
+    private UserManager userManager;
+    private User currentUser;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ingredientManager = IngredientManager.getInstance();
+        userManager = UserManager.getInstance();
+        currentUser = userManager.getCurrentUser();
 
     }
 
@@ -63,19 +69,14 @@ public class FridgeFragment extends Fragment implements IngredientRecyclerViewIn
                              Bundle savedInstanceState) {
 
         binding = FragmentFridgeBinding.inflate(inflater,container,false);
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-        ingredientArrayList = new ArrayList<>();
+        ingredientList = new ArrayList<>();
 
-        email = auth.getCurrentUser().getEmail();
 
 
         getData();
         floatingActionButton();
 
-        binding.recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),4));
-        ingredientsAdapter = new IngredientsAdapter(ingredientArrayList, (IngredientRecyclerViewInterface) FridgeFragment.this);
-        binding.recyclerView.setAdapter(ingredientsAdapter);
+
 
 
 
@@ -92,45 +93,27 @@ public class FridgeFragment extends Fragment implements IngredientRecyclerViewIn
 
     private void getData() {
 
-        firebaseFirestore.collection("Users").document(email).collection("Ingredients").orderBy("recipeName", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        ingredientManager.getIngredients(new IngredientManager.GetIngredientsCallback() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null){
-                    Toast.makeText(getActivity(), error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }
-                if(value != null){
-                    for(DocumentSnapshot snapshot : value.getDocuments()){
-                        Map<String,Object> data = snapshot.getData();
-                        String id = snapshot.getId();
-                        String name = (String) data.get("recipeName");
-                        String downloadUrl = (String) data.get("downloadurl");
-
-                        Ingredient ingredient = new Ingredient(id, name, downloadUrl);
-                        ingredientArrayList.add(ingredient);
-
+            public void onSuccess(ArrayList<Ingredient> ingredientArrayList) {
+                for(int i = 0; i< ingredientArrayList.size(); i++){
+                    if(ingredientArrayList.get(i).getWhoAdded().contains(currentUser.getEmail())){
+                        ingredientList.add(ingredientArrayList.get(i));
                     }
-                    ingredientsAdapter.notifyDataSetChanged();
                 }
+                binding.recyclerView.setLayoutManager(new GridLayoutManager(getActivity(),4));
+                ingredientsAdapter = new IngredientsAdapter(ingredientList, (IngredientRecyclerViewInterface) FridgeFragment.this);
+                binding.recyclerView.setAdapter(ingredientsAdapter);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-    };
 
-    private void deleteData(String id) {
-        firebaseFirestore.collection("Users").document(email).collection("Ingredients").document(id)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error deleting document", e);
-                    }
-                });
     }
+
 
     private void floatingActionButton() {
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +127,8 @@ public class FridgeFragment extends Fragment implements IngredientRecyclerViewIn
                 transaction.commit();
             }
         });
+
+
     }
 
 
@@ -153,22 +138,23 @@ public class FridgeFragment extends Fragment implements IngredientRecyclerViewIn
 
     @Override
     public void deleteImageButtonClick(int position) {
+        Ingredient clickedIngredient = ingredientList.get(position);
+        ArrayList<String> whoAdded = clickedIngredient.getWhoAdded();
+        whoAdded.remove(currentUser.getEmail());
 
-        /*
-        String name = ingredientArrayList.get(position).name;
-        String downloadUrl = ingredientArrayList.get(position).downloadUrl;
+        ingredientManager.updateIngredient(clickedIngredient.getName(), "whoAdded", whoAdded, new IngredientManager.UpdateIngredientCallback() {
+            @Override
+            public void onSuccess() {
+                ingredientList.remove(clickedIngredient);
+                ingredientsAdapter.notifyItemRemoved(position);
+            }
 
-        HashMap<String, Object> postData = new HashMap<>();
-        postData.put("recipeName", name);
-        postData.put("downloadurl", downloadUrl);
-        postData.put("date", FieldValue.serverTimestamp());
+            @Override
+            public void onFailure(String errorMessage) {
 
-        firebaseFirestore.collection("Ingredients").document(name).set(postData);
+            }
+        });
 
-         */
-        deleteData(ingredientArrayList.get(position).id);
-        getActivity().getSupportFragmentManager().beginTransaction().replace(FridgeFragment.this.getId(), new FridgeFragment()).commit();
-        Toast.makeText(getActivity(), "Eklendi", Toast.LENGTH_LONG).show();
     }
 
     @Override

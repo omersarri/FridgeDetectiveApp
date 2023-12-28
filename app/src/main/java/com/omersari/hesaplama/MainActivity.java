@@ -2,24 +2,28 @@ package com.omersari.hesaplama;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
-import com.omersari.hesaplama.bottomnavfragments.FavoriteFragment;
 import com.omersari.hesaplama.bottomnavfragments.FridgeFragment;
 import com.omersari.hesaplama.bottomnavfragments.HomeFragment;
 import com.omersari.hesaplama.bottomnavfragments.ProfileFragment;
 import com.omersari.hesaplama.bottomnavfragments.SearchFragment;
 
 import com.omersari.hesaplama.databinding.ActivityMainBinding;
-
+import com.omersari.hesaplama.model.UserManager;
 
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
@@ -29,23 +33,43 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
 
+    private UserManager userManager;
 
-    private final CompositeDisposable compositeDisposable =new CompositeDisposable();
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //binding
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        userManager = UserManager.getInstance();
 
+
+        userManager.getUserInfo(new UserManager.GetUserInfoCallback() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
 
 
 
         openFragment(new HomeFragment());
+        bottomNavBarSelector();
+
+
+
+
+    }
+
+    public void bottomNavBarSelector() {
         binding.bottomNavigationView.setOnItemSelectedListener(
                 new NavigationBarView.OnItemSelectedListener() {
                     @Override
@@ -67,8 +91,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
-
     }
 
 
@@ -83,9 +105,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        compositeDisposable.clear();
-    }
 }

@@ -1,20 +1,53 @@
 package com.omersari.hesaplama.model;
 
+import java.util.ArrayList;
+
 public class Ingredient {
 
-    public String id;
+    private String id;
 
-    public String name;
+    private String name;
 
-    public String downloadUrl;
+    private String downloadUrl;
+    private ArrayList<String> whoAdded = new ArrayList<>();
 
 
-    public Ingredient(String id, String name, String downloadUrl) {
-        this.id = id;
-        this.name = name;
-        this.downloadUrl = downloadUrl;
+    public Ingredient() {
 
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public ArrayList<String> getWhoAdded() {
+        return whoAdded;
+    }
+
+    public void setWhoAdded(ArrayList<String> whoAdded) {
+        this.whoAdded = whoAdded;
+    }
+
 
 }
 

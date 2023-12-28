@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.databinding.RecipeRowBinding;
 import com.omersari.hesaplama.model.Recipe;
+import com.omersari.hesaplama.model.UserManager;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHolder> {
     private final RecipeRecyclerViewInterface recyclerViewInterface;
+    private UserManager userManager = UserManager.getInstance();
     private FirebaseAuth auth;
 
 
@@ -42,16 +44,26 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
     @Override
     public void onBindViewHolder(@NonNull RecipeHolder holder, int position) {
-        holder.binding.textView1.setText(recipeList.get(position).name);
-        holder.binding.textView2.setText(recipeList.get(position).prepTime + " Dakika Hazırlık");
-        holder.binding.textView3.setText(recipeList.get(position).cookTime + " Dakika Pişirme");
-        Picasso.get().load(recipeList.get(position).downloadUrl).into(holder.binding.imageView);
-        holder.binding.recipeMatched.setText(recipeList.get(position).matchedIngredient + " Malzeme İle Eşleşti");
+        holder.binding.textView1.setText(recipeList.get(position).getName());
+        holder.binding.textView2.setText(recipeList.get(position).getPrepTime() + " Dakika Hazırlık");
+        holder.binding.textView3.setText(recipeList.get(position).getCookTime() + " Dakika Pişirme");
+        Picasso.get().load(recipeList.get(position).getDownloadUrl()).into(holder.binding.imageView);
+        holder.binding.recipeMatched.setText(recipeList.get(position).getMatchedIngredient() + " Malzeme İle Eşleşti");
+
+        ArrayList<String> whoFavorited = recipeList.get(position).getWhoFavorited();
 
         if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com")) {
             holder.binding.deleteImageButton.setVisibility(View.VISIBLE);
         } else {
             holder.binding.deleteImageButton.setVisibility(View.INVISIBLE);
+        }
+
+        if(whoFavorited != null){
+            if(whoFavorited.contains(userManager.getCurrentUser().getEmail())){
+                holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_fill_icon);
+            }else{
+                holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_icon);
+            }
         }
 
 

@@ -30,6 +30,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.omersari.hesaplama.databinding.ActivityUploadBinding;
+import com.omersari.hesaplama.model.RecipeManager;
 
 
 import java.util.HashMap;
@@ -43,80 +44,39 @@ public class UploadActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> activityResultLauncher;
     ActivityResultLauncher<String> permissionLauncher;
 
-    private FirebaseStorage firebaseStorage;
-    private FirebaseAuth auth;
-    private FirebaseFirestore firebaseFirestore;
-    private StorageReference storageReference;
+    private RecipeManager recipeManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityUploadBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+
+        recipeManager = RecipeManager.getInstance();
+
         registerLauncher();
-        firebaseStorage = FirebaseStorage.getInstance();
-        auth = FirebaseAuth.getInstance();
-        firebaseFirestore = FirebaseFirestore.getInstance();
-        storageReference = firebaseStorage.getReference();
     }
 
     public void uploadButtonClicked(View view) {
-        if(imageData != null) {
+        String name = binding.nameEditText.getText().toString();
+        String ingredients = binding.ingredientsEditTextMultiLine.getText().toString();
+        String preparation = binding.preparationEditTextMultiLine.getText().toString();
+        String prepTime = binding.prepTimeEditTextNumber.getText().toString();
+        String cookTime = binding.cookTimeEditTextNumber.getText().toString();
+        recipeManager.addRecipe(imageData, name, ingredients, preparation, prepTime, cookTime, new RecipeManager.AddRecipeCallback() {
+            @Override
+            public void onSuccess() {
+                Intent intent = new Intent(UploadActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
 
-            //universal unique id
-            UUID uuid = UUID.randomUUID();
-            String imageName = "images/" + uuid + ".jpg";
-            storageReference.child(imageName).putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    //Download url
-                    StorageReference newReferance = firebaseStorage.getReference(imageName);
-                    newReferance.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            String downloadUrl = uri.toString();
-
-                            String name = binding.nameEditText.getText().toString();
-                            String ingredients = binding.ingredientsEditTextMultiLine.getText().toString();
-                            String preparation = binding.preparationEditTextMultiLine.getText().toString();
-                            String prepTime = binding.prepTimeEditTextNumber.getText().toString();
-                            String cookTime = binding.cookTimeEditTextNumber.getText().toString();
-                            FirebaseUser user = auth.getCurrentUser();
-                            String email = user.getEmail();
-
-                            HashMap<String, Object> postData = new HashMap<>();
-                            postData.put("recipeName", name);
-                            postData.put("ingredients", ingredients);
-                            postData.put("preparation", preparation);
-                            postData.put("prepTime", prepTime);
-                            postData.put("cookTime", cookTime);
-                            postData.put("downloadurl", downloadUrl);
-                            postData.put("date", FieldValue.serverTimestamp());
-
-                            firebaseFirestore.collection("Recipes").add(postData).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                @Override
-                                public void onSuccess(DocumentReference documentReference) {
-                                    Intent intent = new Intent(UploadActivity.this, MainActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(intent);
-
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(UploadActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            });
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(UploadActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(UploadActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
     public void selectImage(View view) {
 

@@ -4,32 +4,39 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    tools:context=".SignUpActivity">
+    tools:context=".SignUpActivity"
+    style="@style/ScreenBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/backgroundColor"
         android:gravity="center">
 
-        <ImageView
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/signinpic"
             android:layout_marginTop="20dp"
-
-
-            />
+            app:cardCornerRadius="150dp">
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/signinpic" />
+        </androidx.cardview.widget.CardView>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signuppage1"
             android:fontFamily="Robo"
             android:textSize="28sp"
-            style="bold"
+            android:textStyle="bold"
             android:layout_margin="15dp"
+            style="@style/TextColor"
             />
         <LinearLayout
             android:layout_width="wrap_content"
@@ -41,7 +48,8 @@
                 android:layout_height="40dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/nav_profile" />
+                android:src="@drawable/nav_profile"
+                style="@style/ImageColor"/>
 
             <EditText
                 android:id="@+id/nameText"
@@ -64,7 +72,8 @@
                 android:layout_height="40dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/baseline_email_24" />
+                android:src="@drawable/baseline_email_24"
+                style="@style/ImageColor"/>
 
             <EditText
                 android:id="@+id/mailText"
@@ -74,7 +83,7 @@
                 android:background="@drawable/custom_edit_text"
                 android:ems="9"
                 android:hint="@string/signuppage3"
-                android:inputType="text" />
+                android:inputType="textEmailAddress" />
         </LinearLayout>
 
         <LinearLayout
@@ -87,7 +96,8 @@
                 android:layout_height="40dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/baseline_lock_24" />
+                android:src="@drawable/baseline_lock_24"
+                style="@style/ImageColor"/>
 
             <EditText
                 android:id="@+id/passwordText"
@@ -100,8 +110,28 @@
                 android:inputType="textPassword" />
         </LinearLayout>
 
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Erkek"
+                android:layout_marginEnd="20dp"/>
+
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Kadın" />
+        </RadioGroup>
+
         <Button
-            android:id="@+id/signinButton"
+            android:id="@+id/loginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
@@ -128,7 +158,8 @@
                 android:layout_marginRight="5dp"
                 android:fontFamily="roboto"
                 android:text="@string/signuppage6"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                style="@style/TextColor"/>
 
             <Button
                 android:id="@+id/toSignUpButton"

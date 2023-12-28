@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    style="@style/ScreenBackground">
 
 
     <FrameLayout
@@ -26,9 +27,6 @@
         app:layout_constraintBottom_toBottomOf="@+id/constraint_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:background="@color/white"
-        app:itemIconTint="@color/primaryColor"
-        app:itemTextColor="@color/primaryColor"
         android:elevation="5dp"
         app:menu="@menu/bottom_navigation_menu"/>
 

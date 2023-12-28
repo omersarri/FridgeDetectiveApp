@@ -4,26 +4,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    tools:context=".LoginActivity">
+    tools:context=".LoginActivity"
+    style="@style/ScreenBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/backgroundColor"
+
         android:orientation="vertical"
         android:gravity="center">
 
-        <ImageView
-            android:id="@+id/imageView3"
+        <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:scaleType="centerInside"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/signinpic" />
+            app:cardCornerRadius="150dp">
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="centerInside"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/signinpic" />
+        </androidx.cardview.widget.CardView>
+
+
 
         <TextView
             android:id="@+id/textView12"
@@ -37,7 +44,8 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageView3" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView3"
+            style="@style/TextColor"/>
 
         <TextView
             android:id="@+id/textView13"
@@ -49,7 +57,8 @@
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView12" />
+            app:layout_constraintTop_toBottomOf="@+id/textView12"
+            style="@style/TextColor"/>
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -60,7 +69,8 @@
                 android:layout_height="40dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
-                android:src="@drawable/cutlery" />
+                android:src="@drawable/cutlery"
+                style="@style/ImageColor"/>
 
             <EditText
                 android:id="@+id/emailText"
@@ -82,7 +92,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/baseline_lock_24"
                 android:layout_marginTop="20dp"
-                android:layout_marginRight="10dp"/>
+                android:layout_marginRight="10dp"
+                style="@style/ImageColor"/>
 
             <EditText
                 android:id="@+id/passwordText"
@@ -97,13 +108,13 @@
 
 
         <Button
-            android:id="@+id/signinButton"
+            android:id="@+id/loginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:background="@drawable/custom_button"
             android:ems="18"
-            android:onClick="signInClicked"
+            android:onClick="loginClicked"
             android:text="@string/signinpage5"
             android:textColor="@color/white"
             android:textSize="16dp" />
@@ -123,7 +134,8 @@
                 android:layout_marginRight="5dp"
                 android:fontFamily="roboto"
                 android:text="@string/signinpage6"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                style="@style/TextColor"/>
 
             <Button
                 android:id="@+id/toSignUpButton"

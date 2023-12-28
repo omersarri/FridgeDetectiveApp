@@ -8,7 +8,6 @@
     <color name="secondaryColor">#82C3EC</color>
     <color name="buttonColor">#472183</color>
     <color name="backgroundColor">#FFFFFF</color>
-    <color name="darkGrey">#5A5A5A</color>
     <color name="green">#42f569</color>
     <color name="yellow">#ecf542</color>
     <color name="red">#f5424e</color>
@@ -18,6 +17,8 @@
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="border_color">#cecece</color>
+    <color name="grey">#aaa</color>
+    <color name="darkGrey">#ff424242</color>
 
 
 </resources>

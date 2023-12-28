@@ -41,8 +41,8 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull IngredientHolder holder, int position) {
-        holder.binding.gridItemText.setText(ingredientList.get(position).name);
-        Picasso.get().load(ingredientList.get(position).downloadUrl).into(holder.binding.gridItemImage);
+        holder.binding.gridItemText.setText(ingredientList.get(position).getName());
+        Picasso.get().load(ingredientList.get(position).getDownloadUrl()).into(holder.binding.gridItemImage);
         /*
         if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com")) {
             holder.binding.deleteImageButton.setVisibility(View.VISIBLE);

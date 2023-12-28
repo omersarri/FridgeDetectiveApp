@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".bottomnavfragments.AddIngredientFragment">
+    tools:context=".bottomnavfragments.AddIngredientFragment"
+    style="@style/ScreenBackground">
 
     <TextView
         android:id="@+id/textView11"
@@ -17,7 +18,8 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/TextColor"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"

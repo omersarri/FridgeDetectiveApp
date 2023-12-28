@@ -9,7 +9,7 @@
     android:layout_margin="5dp"
     app:cardCornerRadius="5dp"
     app:cardElevation="5dp"
-    android:backgroundTint="@color/backgroundColor">
+    style="@style/ScreenBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -27,19 +27,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/gridItemText"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:gravity="center"
-            android:padding="5dp"
-            android:text="@string/app_name"
-            android:textAlignment="center"
-            android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/gridItemImage" />
+            app:layout_constraintTop_toBottomOf="@+id/gridItemImage">
+            <TextView
+                android:id="@+id/gridItemText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="yağ"
+                android:textSize="18sp"
+                style="@style/TextColor" />
+        </LinearLayout>
+
+
 
         <ImageButton
             android:id="@+id/deleteImageButton"
