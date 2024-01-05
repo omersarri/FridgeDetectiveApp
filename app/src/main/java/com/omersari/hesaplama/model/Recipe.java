@@ -5,29 +5,44 @@ package com.omersari.hesaplama.model;
 
 //int id color category, string name meaning synonym exapmle type
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
+@Entity
 public class Recipe implements Serializable {
 
+    @PrimaryKey
+    @NonNull
+    @SerializedName("id")
     private String id;
+    @SerializedName("recipeName")
     private String name;
+    @SerializedName("preparation")
     private String preparation;
+    @SerializedName("prepTime")
     private String prepTime;
+    @SerializedName("cookTime")
     private String cookTime;
 
 
-
+    @SerializedName("serving")
     private String serving;
 
 
+    @SerializedName("ingredients")
     private String ingredients;
+    @SerializedName("downloadUrl")
     private String downloadUrl;
 
 
-
+    @Ignore
     private ArrayList<Ingredient> matchedIngredient = new ArrayList<>();
     private ArrayList<String> whoFavorited = new ArrayList<>();
 
@@ -118,6 +133,24 @@ public class Recipe implements Serializable {
     }
 
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        Recipe other = (Recipe) obj;
+        return id != null ? id.equals(other.id) : other.id == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 
 
 

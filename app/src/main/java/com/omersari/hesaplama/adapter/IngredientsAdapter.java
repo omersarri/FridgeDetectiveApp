@@ -92,4 +92,5 @@ public class IngredientsAdapter extends RecyclerView.Adapter<IngredientsAdapter.
 
 
 
+
 }

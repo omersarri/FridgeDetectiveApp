@@ -25,8 +25,8 @@
 
         <EditText
             android:id="@+id/nameEditText"
-            android:layout_width="208dp"
-            android:layout_height="50dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:ems="10"
             android:hint="Tarifin ismini gir"
@@ -105,8 +105,9 @@
             android:ems="10"
             android:hint="Kaç kişilik"
             android:inputType="number"
-            app:layout_constraintTop_toBottomOf="@+id/cookTimeEditTextNumber"
-            tools:layout_editor_absoluteX="100dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cookTimeEditTextNumber" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

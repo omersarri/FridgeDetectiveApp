@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,11 +27,14 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.omersari.hesaplama.database.ApiRecipeDao;
 import com.omersari.hesaplama.database.ApiRecipeDatabase;
+import com.omersari.hesaplama.database.IngredientDao;
+import com.omersari.hesaplama.database.IngredientDatabase;
 import com.omersari.hesaplama.database.LocalDataManager;
 import com.omersari.hesaplama.database.NetworkUtils;
 import com.omersari.hesaplama.databinding.FragmentSearchBinding;
 import com.omersari.hesaplama.model.ApiResponseRecipe;
 import com.omersari.hesaplama.model.Ingredient;
+import com.omersari.hesaplama.model.Recipe;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,6 +42,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -65,6 +71,8 @@ public class SearchFragment extends Fragment {
 
     ApiRecipeDatabase db;
     ApiRecipeDao dao;
+    IngredientDatabase ingredientDatabase;
+    IngredientDao ingredientDao;
 
     CompositeDisposable compositeDisposable;
     ArrayList<Ingredient> ingredientArrayList;
@@ -81,6 +89,8 @@ public class SearchFragment extends Fragment {
         super.onCreate(savedInstanceState);
         db = Room.databaseBuilder(getActivity(), ApiRecipeDatabase.class, "ApiResponseRecipe").build();
         dao = db.apiRecipeDao();
+        ingredientDatabase = Room.databaseBuilder(getActivity(), IngredientDatabase.class, "Ingredient").build();
+        ingredientDao = ingredientDatabase.ingredientDao();
         compositeDisposable = new CompositeDisposable();
         firebaseFirestore = FirebaseFirestore.getInstance();
         ingredientArrayList = new ArrayList<>();
@@ -91,27 +101,124 @@ public class SearchFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentSearchBinding.inflate(inflater,container,false);
-        recipeText = binding.recipeText;
+        recipeText = binding.recipeName;
         email = auth.getCurrentUser().getEmail();
-        getData();
+        getLocalIngredients();
+        putInfo();
 
 
 
 
-
-        binding.imageButton.setOnClickListener((v)->{
-            String question = ingredients + "Malzemelerini içinde barındıran bir yemek tarifi öner json formatında olsun Başlıkları => recipeName, cookTime, preparationTime, ingredients, preparation ";
-            if(NetworkUtils.isNetworkAvailable(getActivity())){
-                callAPI(question);
+        binding.floatingActionButton.setOnClickListener((v)->{
+            if(ingredientArrayList.size() != 0){
+                if(binding.recipeLayout.getVisibility() == View.VISIBLE){
+                    binding.recipeDetailsText.setText("");
+                    binding.detailsIngredientsText.setText("");
+                    binding.recipeLayout.setVisibility(View.INVISIBLE);
+                    binding.infoText.setVisibility(View.VISIBLE);
+                }
+                String question = ingredients + "Malzemelerinden uygun olanları içinde barındıran bir yemek tarifi öner json formatında olsun Başlıkları ve tipleri=> recipeName (String), cookTime (String), preparationTime (String), ingredients (List), preparation (String), serving (String)";
+                if(NetworkUtils.isNetworkAvailable(getActivity())){
+                    callAPI(question);
+                    System.out.println(question);
+                }else{
+                    getLocalRecipes();
+                }
             }else{
-                Toast.makeText(getActivity(), "Internet bağlantınız yok", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Dolabınıza malzeme ekleyin!", Toast.LENGTH_SHORT).show();
             }
+
 
         });
 
         return binding.getRoot();
     }
+    private void getLocalIngredients() {
+        compositeDisposable.add(ingredientDao.getAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(SearchFragment.this::handleResponse1, // Başarılı durumda
+                        throwable -> {
+                            // Hata durumunda bu blok çağrılır
+                            Log.e("RxJava", "Bir hata oluştu", throwable);
+                            // Hata durumunu işleyebilir veya kullanıcıya bildirebilirsiniz
+                        }));
+    }
+
+    private void handleResponse1(List<Ingredient> ingredientsList) {
+        if(ingredientArrayList.size() == 0){
+            ingredientArrayList.addAll(ingredientsList);
+            for(Ingredient ingredient : ingredientArrayList) {
+                ingredients = ingredients +" "+ ingredient.getName();
+            }
+        }
+    }
+
+    private void getLocalRecipes() {
+        binding.infoText.setText("Lütfen Bekleyiniz...");
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Bekleme süresi sona erdiğinde burası çalışır
+                compositeDisposable.add(dao.getAll()
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(SearchFragment.this::handleResponse,
+                                throwable -> {
+                                    // Hata durumunda bu blok çağrılır
+                                    Log.e("RxJava", "Bir hata oluştu", throwable);
+                                    // Hata durumunu işleyebilir veya kullanıcıya bildirebilirsiniz
+                                }));
+            }
+        }, 3000);
+
+    }
+    private void handleResponse(List<ApiResponseRecipe> recipes){
+        if(recipes.size() == 0){
+            binding.infoText.setText("Veritabanında hiç tarif bulunmuyor.");
+        }else{
+            int selectedCount = 0;
+            ApiResponseRecipe selectedRecipe = null;
+            for(ApiResponseRecipe recipe : recipes){
+                int count = 0;
+                for (Ingredient ingredient :ingredientArrayList){
+                    if(recipe.getIngredients().toString().toLowerCase().contains(ingredient.getName().toLowerCase())){
+                        count++;
+                    }
+                    if(selectedCount<count){
+                        selectedCount = count;
+                        selectedRecipe = recipe;
+                        count= 0;
+                    }
+                }
+            }
+            if(selectedRecipe != null){
+                binding.recipeLayout.setVisibility(View.VISIBLE);
+                binding.infoText.setVisibility(View.GONE);
+                binding.recipeName.setText(selectedRecipe.getName());
+                binding.prepTimeTextView.setText(selectedRecipe.getPrepTime());
+                binding.cookTimeTextView.setText(selectedRecipe.getCookTime());
+                binding.detailsIngredientsText.setText(selectedRecipe.getIngredients().toString());
+                binding.recipeDetailsText.setText(selectedRecipe.getPreparation().toString());
+                binding.servingTextView.setText(selectedRecipe.getServing());
+            }else{
+                binding.infoText.setText("Eşleşen tarif bulunamadı.");
+            }
+        }
+
+
+
+    }
+
+
+    private void putInfo(){
+        if(recipeText.getText().equals("")){
+            binding.recipeLayout.setVisibility(View.INVISIBLE);
+            binding.infoText.setText("Lezzet Robotuna tarif sormak için sihirli değneğe dokunun.");
+        }
+    }
     void addToChat(String message){
+        System.out.println(message);
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -131,7 +238,15 @@ public class SearchFragment extends Fragment {
                                     System.err.println("Insertion error: " + throwable.getMessage());
                                 }
                         ));
-                recipeText.setText(apiResponseRecipe.getPreparation());
+                binding.recipeLayout.setVisibility(View.VISIBLE);
+                binding.infoText.setVisibility(View.GONE);
+                binding.recipeName.setText(apiResponseRecipe.getName());
+                binding.prepTimeTextView.setText(apiResponseRecipe.getPrepTime());
+                binding.cookTimeTextView.setText(apiResponseRecipe.getCookTime());
+                binding.detailsIngredientsText.setText(apiResponseRecipe.getIngredients().toString());
+                binding.recipeDetailsText.setText(apiResponseRecipe.getPreparation().toString());
+                binding.servingTextView.setText(apiResponseRecipe.getServing());
+
 
             }
         });
@@ -143,7 +258,7 @@ public class SearchFragment extends Fragment {
 
     void callAPI(String question){
 
-        recipeText.setText("Lütfen Bekleyiniz...");
+        binding.infoText.setText("Lütfen Bekleyiniz...");
         //okhttp
 
         JSONObject jsonBody = new JSONObject();
@@ -203,6 +318,8 @@ public class SearchFragment extends Fragment {
     }
 
 
+    //get ingredients from firebase
+    /*
     private void getData() {
 
         firebaseFirestore.collection("Ingredients").whereArrayContains("whoAdded", email).orderBy("ingredientName", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -215,50 +332,22 @@ public class SearchFragment extends Fragment {
                 if (value != null) {
                     for (DocumentSnapshot snapshot : value.getDocuments()) {
                         Map<String, Object> data = snapshot.getData();
-                        String id = snapshot.getId();
                         String name = (String) data.get("ingredientName");
 
                         Ingredient ingredient = new Ingredient();
-                        ingredient.setId(id);
                         ingredient.setName(name);
                         ingredients = ingredients + ingredient.getName() + ", ";
 
                     }
-                    System.out.println(ingredients+ "sdkjnasdgasg");
                 }
             }
         });
 
-        /*
-        firebaseFirestore.collection("Users").document(email).collection("Ingredients").orderBy("recipeName", Query.Direction.ASCENDING).addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                if(error != null){
-                    System.err.println(error.getLocalizedMessage());
-                    Toast.makeText(getActivity(), error.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                }
-                if(value != null){
-                    for(DocumentSnapshot snapshot : value.getDocuments()){
-                        Map<String,Object> data = snapshot.getData();
-                        String id = snapshot.getId();
-                        String name = (String) data.get("recipeName");
-                        String downloadUrl = (String) data.get("downloadurl");
-
-                        Ingredient ingredient = new Ingredient();
-                        ingredient.setId(id);
-                        ingredient.setName(name);
-                        System.out.println("ingreidnt = "+ ingredient.getName());
-                        ingredients = ingredients + ingredient.getName() + ", " ;
-
-                    }
-                }
-            }
-        });
-
-    };
-
-         */
     }
+
+     */
+
+
 
 
 }

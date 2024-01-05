@@ -23,6 +23,7 @@ import com.omersari.hesaplama.bottomnavfragments.ProfileFragment;
 import com.omersari.hesaplama.bottomnavfragments.SearchFragment;
 
 import com.omersari.hesaplama.databinding.ActivityMainBinding;
+import com.omersari.hesaplama.model.RecipeManager;
 import com.omersari.hesaplama.model.UserManager;
 
 
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
 
     private UserManager userManager;
-
+    private RecipeManager recipeManager;
 
 
 
@@ -45,8 +46,35 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
         userManager = UserManager.getInstance();
+        recipeManager = RecipeManager.getInstance();
+
+        recipeManager.getFavorites(this, new RecipeManager.AddRecipeCallback() {
+            @Override
+            public void onSuccess() {
+                System.out.println("veriler çekildi");
+                getUserInfo();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                getUserInfo();
+            }
+        });
 
 
+
+
+
+
+
+
+
+
+
+    }
+
+    public void getUserInfo() {
         userManager.getUserInfo(new UserManager.GetUserInfoCallback() {
             @Override
             public void onSuccess() {
@@ -59,14 +87,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
-
-
-
-
-
     }
 
     public void bottomNavBarSelector() {
@@ -74,20 +94,24 @@ public class MainActivity extends AppCompatActivity {
                 new NavigationBarView.OnItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        if(R.id.bottom_home == item.getItemId()){
-                            openFragment(new HomeFragment());
-                            item.setChecked(true);
-                        } else if(R.id.bottom_search == item.getItemId()){
-                            openFragment(new SearchFragment());
-                            item.setChecked(true);
-                        } else if(R.id.bottom_fridge == item.getItemId()){
-                            openFragment(new FridgeFragment());
-                            item.setChecked(true);
-                        } else if(R.id.bottom_profile == item.getItemId()){
-                            openFragment(new ProfileFragment());
-                            item.setChecked(true);
+                        if (item.isChecked()) {
+                            return false; // Zaten seçiliyse bir şey yapma
                         }
-                        return false;
+
+                        int itemId = item.getItemId();
+
+                        if (itemId == R.id.bottom_home) {
+                            openFragment(new HomeFragment());
+                        } else if (itemId == R.id.bottom_search) {
+                            openFragment(new SearchFragment());
+                        } else if (itemId == R.id.bottom_fridge) {
+                            openFragment(new FridgeFragment());
+                        } else if (itemId == R.id.bottom_profile) {
+                            openFragment(new ProfileFragment());
+                        }
+
+                        item.setChecked(true);
+                        return true;
                     }
                 }
         );

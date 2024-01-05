@@ -7,7 +7,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.room.Room;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.adapter.AddIngredientsAdapter;
 import com.omersari.hesaplama.adapter.IngredientRecyclerViewInterface;
+import com.omersari.hesaplama.adapter.IngredientsAdapter;
+import com.omersari.hesaplama.database.IngredientDao;
+import com.omersari.hesaplama.database.IngredientDatabase;
 import com.omersari.hesaplama.databinding.FragmentAddIngredientBinding;
 import com.omersari.hesaplama.model.Ingredient;
 import com.omersari.hesaplama.model.IngredientManager;
@@ -35,7 +40,13 @@ import com.omersari.hesaplama.model.UserManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class AddIngredientFragment extends Fragment implements IngredientRecyclerViewInterface{
@@ -44,8 +55,12 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
 
 
     ArrayList<Ingredient> ingredientList;
+    ArrayList<Ingredient> myIngredientList;
 
     AddIngredientsAdapter addIngredientsAdapter;
+    IngredientDatabase ingredientDatabase;
+    IngredientDao ingredientDao;
+    CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
 
@@ -60,6 +75,9 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
         userManager = UserManager.getInstance();
         currentUser = userManager.getCurrentUser();
         ingredientList = new ArrayList<>();
+        myIngredientList = new ArrayList<>();
+        ingredientDatabase = Room.databaseBuilder(getActivity(),IngredientDatabase.class, "Ingredient").build();
+        ingredientDao = ingredientDatabase.ingredientDao();
     }
 
     @Override
@@ -67,14 +85,63 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
                              Bundle savedInstanceState) {
         binding = FragmentAddIngredientBinding.inflate(inflater, container, false);
 
-        getData();
+        getMyIngredients();
         floatingActionButtonClick();
+
+        binding.recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 4));
+        addIngredientsAdapter = new AddIngredientsAdapter(ingredientList, (IngredientRecyclerViewInterface) AddIngredientFragment.this);
+        binding.recyclerView.setAdapter(addIngredientsAdapter);
 
 
         return binding.getRoot();
     }
 
+    private void getMyIngredients() {
+        compositeDisposable.add(ingredientDao.getAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(AddIngredientFragment.this::handleResponse));
+    }
 
+    private void handleResponse(List<Ingredient> ingredientList) {
+        if(myIngredientList.size() == 0){
+            myIngredientList.addAll(ingredientList);
+            getData();
+        }
+
+
+    }
+
+    private void getData() {
+
+        ingredientManager.getIngredients(new IngredientManager.GetIngredientsCallback() {
+            @Override
+            public void onSuccess(ArrayList<Ingredient> ingredientArrayList) {
+                    ingredientList.addAll(ingredientArrayList);
+                    for(int i=0; i<ingredientArrayList.size();i++) {
+                        for(Ingredient ingredient : myIngredientList) {
+                            if (Objects.equals(ingredientArrayList.get(i).getName(), ingredient.getName())) {
+                                ingredientList.remove(ingredientArrayList.get(i));
+                            }
+                        }
+                    }
+
+
+
+
+                addIngredientsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+
+    /* getData only firebase
     private void getData() {
 
         ingredientManager.getIngredients(new IngredientManager.GetIngredientsCallback() {
@@ -99,6 +166,8 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
 
     }
 
+     */
+
     public void floatingActionButtonClick() {
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,6 +191,27 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
 
     @Override
     public void addImageButtonClick(int position) {
+        compositeDisposable.add(ingredientDao.insert(ingredientList.get(position))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        () -> {
+                            myIngredientList.add(ingredientList.get(position));
+                            // This block is called on success
+                            ingredientList.remove(position);
+                            addIngredientsAdapter.notifyItemRemoved(position);
+                            Log.d("RxJava", "Delete successful");
+                        },
+                        throwable -> {
+                            // This block is called on error
+                            Log.e("RxJava", "Delete failed", throwable);
+                        }
+                ));
+    }
+
+    /*
+    @Override
+    public void addImageButtonClick(int position) {
         Ingredient clickedIngredient = ingredientList.get(position);
         ArrayList<String> whoAdded = clickedIngredient.getWhoAdded();
         if(!whoAdded.contains(currentUser.getEmail())){
@@ -142,6 +232,8 @@ public class AddIngredientFragment extends Fragment implements IngredientRecycle
             }
         });
     }
+
+     */
 
 
 }

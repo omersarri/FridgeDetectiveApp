@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.provider.MediaStore;
@@ -43,6 +44,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.omersari.hesaplama.AllRecipesActivity;
 import com.omersari.hesaplama.IngredientUploadActivity;
 import com.omersari.hesaplama.LoginActivity;
 import com.omersari.hesaplama.R;
@@ -50,6 +52,7 @@ import com.omersari.hesaplama.RecipeDetailsActivity;
 import com.omersari.hesaplama.UploadActivity;
 import com.omersari.hesaplama.adapter.FavoriteRecyclerViewInterface;
 import com.omersari.hesaplama.adapter.FavoritesAdapter;
+import com.omersari.hesaplama.database.NetworkUtils;
 import com.omersari.hesaplama.databinding.ActivityUploadBinding;
 import com.omersari.hesaplama.databinding.FragmentProfileBinding;
 import com.omersari.hesaplama.model.Recipe;
@@ -86,9 +89,9 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
-
-        recipeList = new ArrayList<>();
         recipeManager = RecipeManager.getInstance();
+        recipeList = recipeManager.getFavorites();
+        System.out.println("recipelist in profile" + recipeList.size());
         userManager = UserManager.getInstance();
         currentUser = userManager.getCurrentUser();
     }
@@ -101,18 +104,7 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
         binding.textView9.setText(currentUser.getName());
         //Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic);
 
-        Picasso.get().load(currentUser.getProfilePic()).networkPolicy(NetworkPolicy.OFFLINE).into(binding.userProfilePic, new Callback() {
-            @Override
-            public void onSuccess() {
-                Log.d("veri","veri"); // Eğer image daha önce çekilmiş ise client sunucuya gitmeden imageyi kullanıcıya göstermiş olacak
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-                Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic); // Eğer image cachelenmemiş ise client sunucuya gidip imageyi cacheleyecek
-            }
-        });
+        Picasso.get().load(currentUser.getProfilePic()).into(binding.userProfilePic);
 
         if(currentUser.getEmail().equals("omersari@hotmail.com") ){
             binding.button2.setVisibility(View.VISIBLE);
@@ -123,10 +115,14 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
         }
 
 
+        binding.recyclerView2.setLayoutManager(new LinearLayoutManager(getActivity()));
+        favoritesAdapter = new FavoritesAdapter(recipeList, (FavoriteRecyclerViewInterface) ProfileFragment.this);
+        binding.recyclerView2.setAdapter(favoritesAdapter);
 
 
 
-        getFavorites();
+
+        //getFavorites();
 
         editProfilePicButtonClick();
         registerLauncher();
@@ -166,8 +162,13 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
         binding.button3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intentToUpload = new Intent(getActivity(), IngredientUploadActivity.class);
-                startActivity(intentToUpload);
+                if(NetworkUtils.isNetworkAvailable(getActivity())){
+                    Intent intentToUpload = new Intent(getActivity(), IngredientUploadActivity.class);
+                    startActivity(intentToUpload);
+                }else{
+                    Toast.makeText(getActivity(), "Çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
     }
@@ -175,45 +176,64 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
         binding.button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intentToUpload = new Intent(getActivity(), UploadActivity.class);
-                startActivity(intentToUpload);
+                if(NetworkUtils.isNetworkAvailable(getActivity())){
+                    Intent intentToUpload = new Intent(getActivity(), UploadActivity.class);
+                    startActivity(intentToUpload);
+                }else{
+                    Toast.makeText(getActivity(), "Çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
+
+
     }
     private void logoutButtonClick() {
+
         binding.logoutImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                auth.signOut();
+                if(NetworkUtils.isNetworkAvailable(getActivity())){
+                    auth.signOut();
+                    Intent intentToLogin = new Intent(getActivity(), LoginActivity.class);
+                    startActivity(intentToLogin);
+                    getActivity().finish();
+                }else{
+                    Toast.makeText(getActivity(), "Çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+                }
 
-                Intent intentToLogin = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intentToLogin);
-                getActivity().finish();
             }
         });
     }
     private void editProfilePicButtonClick() {
+
         binding.editProfilePicButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    if(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        Snackbar.make(view,"Permission needed for gallery",Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                //ask permission
-                                permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-                            }
-                        }).show();
-                    }else{
-                        //ask permission
-                        permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                if(NetworkUtils.isNetworkAvailable(getActivity())){
+                    if(ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                        if(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                            Snackbar.make(view,"Permission needed for gallery",Snackbar.LENGTH_INDEFINITE).setAction("Give Permission", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    //ask permission
+                                    permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                                }
+                            }).show();
+                        }else{
+                            //ask permission
+                            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
 
+                        }
+                    }else{
+                        Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        activityResultLauncher.launch(intentToGallery);
                     }
                 }else{
-                    Intent intentToGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    activityResultLauncher.launch(intentToGallery);
+                    Toast.makeText(getActivity(), "Çevrimiçi olun!", Toast.LENGTH_SHORT).show();
                 }
+
+
             }
         });
     }
@@ -223,12 +243,7 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
     @Override
     public void onItemClick(int position) {
         Intent intent = new Intent(getActivity(), RecipeDetailsActivity.class);
-        intent.putExtra("recipeName",recipeList.get(position).getName());
-        intent.putExtra("prepTime",recipeList.get(position).getPrepTime());
-        intent.putExtra("cookTime",recipeList.get(position).getCookTime());
-        intent.putExtra("ingredients",recipeList.get(position).getIngredients());
-        intent.putExtra("preparation",recipeList.get(position).getPreparation());
-        intent.putExtra("downloadUrl", recipeList.get(position).getDownloadUrl());
+        intent.putExtra("clickedRecipe",recipeList.get(position));
         startActivity(intent);
     }
 
@@ -239,15 +254,12 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
 
     @Override
     public void deleteImageButtonClick(int position) {
-        Recipe clickedRecipe = recipeList.get(position);
-        ArrayList<String> whoFavorited = clickedRecipe.getWhoFavorited();
-        whoFavorited.remove(currentUser.getEmail());
 
-        recipeManager.updateRecipe(clickedRecipe.getId(), "whoFavorited", whoFavorited, new RecipeManager.UpdateRecipeCallback() {
+        recipeManager.deleteFavorite(getActivity(), recipeList.get(position), new RecipeManager.DeleteRecipeCallback() {
             @Override
             public void onSuccess() {
-                recipeList.remove(clickedRecipe);
-                favoritesAdapter.notifyItemRemoved(position);
+                recipeList.remove(recipeList.get(position));
+                favoritesAdapter.notifyItemChanged(position);
             }
 
             @Override
@@ -255,6 +267,31 @@ public class ProfileFragment extends Fragment implements FavoriteRecyclerViewInt
                 Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+
+        /*
+        if(NetworkUtils.isNetworkAvailable(getActivity())){
+            Recipe clickedRecipe = recipeList.get(position);
+            ArrayList<String> whoFavorited = clickedRecipe.getWhoFavorited();
+            whoFavorited.remove(currentUser.getEmail());
+
+            recipeManager.updateRecipe(clickedRecipe.getId(), "whoFavorited", whoFavorited, new RecipeManager.UpdateRecipeCallback() {
+                @Override
+                public void onSuccess() {
+                    recipeList.remove(clickedRecipe);
+                    favoritesAdapter.notifyItemRemoved(position);
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            Toast.makeText(getActivity(), "Çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+        }
+
+         */
+
     }
 
     public void selectImage(View view) {

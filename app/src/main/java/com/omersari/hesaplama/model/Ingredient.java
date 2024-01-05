@@ -1,15 +1,25 @@
 package com.omersari.hesaplama.model;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
+@Entity
 public class Ingredient implements Serializable {
 
-    private String id;
-
+    @PrimaryKey
+    @NonNull
+    @SerializedName("ingredientName")
     private String name;
 
+    @SerializedName("downloadurl")
     private String downloadUrl;
+    @SerializedName("whoAdded")
     private ArrayList<String> whoAdded = new ArrayList<>();
 
 
@@ -17,13 +27,6 @@ public class Ingredient implements Serializable {
 
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

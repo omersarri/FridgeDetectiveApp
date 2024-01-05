@@ -27,6 +27,9 @@
         app:layout_constraintBottom_toBottomOf="@+id/constraint_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:itemIconTint="@drawable/icon_tint_selector"
+        app:itemTextColor="@drawable/icon_tint_selector"
+        style="@style/ScreenBackground"
         android:elevation="5dp"
         app:menu="@menu/bottom_navigation_menu"/>
 

@@ -37,7 +37,9 @@ public class FavoritesAdapter extends RecyclerView.Adapter<FavoritesAdapter.Reci
         holder.binding.textView1.setText(recipeList.get(position).getName());
         holder.binding.textView2.setText(recipeList.get(position).getPrepTime() + " Dakika Hazırlık");
         holder.binding.textView3.setText(recipeList.get(position).getCookTime() + " Dakika Pişirme");
-        Picasso.get().load(recipeList.get(position).getDownloadUrl()).into(holder.binding.imageView);        //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
+        Picasso.get().load(recipeList.get(position).getDownloadUrl()).into(holder.binding.imageView);
+        //holder.binding.cardView.setCardBackgroundColor(wordList.get(position).color);
+        holder.binding.textView4.setText(recipeList.get(position).getServing() + " Kişilik");
     }
 
     @Override

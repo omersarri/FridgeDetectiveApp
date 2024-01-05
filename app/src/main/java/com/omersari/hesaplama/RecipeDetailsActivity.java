@@ -3,22 +3,25 @@ package com.omersari.hesaplama;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.TextView;
 
 import com.omersari.hesaplama.databinding.ActivityRecipeDetailsBinding;
 import com.omersari.hesaplama.databinding.ActivitySignupBinding;
+import com.omersari.hesaplama.model.Ingredient;
+import com.omersari.hesaplama.model.Recipe;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 public class RecipeDetailsActivity extends AppCompatActivity {
-    ActivityRecipeDetailsBinding binding;
-    String name;
-    String prepTime;
-    String cookTime;
-    String ingredients;
-    String preparation;
-    String downloadUrl;
+    private ActivityRecipeDetailsBinding binding;
+    private Recipe clickedRecipe;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,25 +31,39 @@ public class RecipeDetailsActivity extends AppCompatActivity {
         setContentView(view);
 
         Bundle intentData = getIntent().getExtras();
-        name = intentData.getString("recipeName");
-        prepTime = intentData.getString("prepTime");
-        cookTime = intentData.getString("cookTime");
-        ingredients = intentData.getString("ingredients");
-        preparation = intentData.getString("preparation");
-        downloadUrl = intentData.getString("downloadUrl");
+        clickedRecipe = (Recipe) intentData.getSerializable("clickedRecipe");
 
-        binding.detailsNameText.setText(name);
-        binding.detailsIngredientsText.setText(ingredients);
-        binding.detailsPreparationText.setText(preparation);
-        binding.prepTimeTextView.setText(prepTime + " Dakika Hazırlık");
-        binding.cookTimeTextView.setText(cookTime + " Dakika Pişirme");
 
-        Picasso.get().load(downloadUrl).into(binding.imageView2);
+        String fullText = clickedRecipe.getIngredients();
+        ArrayList<Ingredient> ingredientArrayList = clickedRecipe.getMatchedIngredient();
+
+        SpannableString spannableString = new SpannableString(fullText);
+        for (Ingredient ingredient : ingredientArrayList) {
+
+            int startIndex = fullText.toLowerCase().indexOf(ingredient.getName().toLowerCase());
+
+            if (startIndex != -1) {
+                int endIndex = startIndex + ingredient.getName().length();
+
+                ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.GREEN);
+
+                spannableString.setSpan(colorSpan, startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            }
+        }
+
+        binding.detailsNameText.setText(clickedRecipe.getName());
+        binding.detailsIngredientsText.setText(spannableString);
+        binding.detailsPreparationText.setText(clickedRecipe.getPreparation());
+        binding.prepTimeTextView.setText(clickedRecipe.getPrepTime() + " Dakika Hazırlık");
+        binding.cookTimeTextView.setText(clickedRecipe.getCookTime() + " Dakika Pişirme");
+        binding.servingTextView.setText(clickedRecipe.getServing() + " Kişilik");
+
+        Picasso.get().load(clickedRecipe.getDownloadUrl()).into(binding.imageView2);
+
     }
 
-    public void speakButtonClick(View view) {
 
-    }
 
 
 }

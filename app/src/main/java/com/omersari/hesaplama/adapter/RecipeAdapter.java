@@ -27,12 +27,14 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
 
 
 
-    public RecipeAdapter(ArrayList<Recipe> recipeList, RecipeRecyclerViewInterface recyclerViewInterface) {
+    public RecipeAdapter(ArrayList<Recipe> recipeList, ArrayList<Recipe> favorites, RecipeRecyclerViewInterface recyclerViewInterface) {
         this.recipeList = recipeList;
         this.recyclerViewInterface = recyclerViewInterface;
+        this.favorites = favorites;
     }
 
-    private ArrayList<Recipe> recipeList;
+    private final ArrayList<Recipe> recipeList;
+    private final ArrayList<Recipe> favorites;
 
     @NonNull
     @Override
@@ -49,15 +51,16 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
         holder.binding.textView3.setText(recipeList.get(position).getCookTime() + " Dakika Pişirme");
         Picasso.get().load(recipeList.get(position).getDownloadUrl()).into(holder.binding.imageView);
         holder.binding.recipeMatched.setText(recipeList.get(position).getMatchedIngredient().size() + " Malzeme İle\nEşleşti");
+        holder.binding.textView4.setText(recipeList.get(position).getServing()+ " Kişilik");
 
-        ArrayList<String> whoFavorited = recipeList.get(position).getWhoFavorited();
+        //ArrayList<String> whoFavorited = recipeList.get(position).getWhoFavorited();
 
         if(auth.getCurrentUser().getEmail().equals("omersari@hotmail.com")) {
             holder.binding.deleteImageButton.setVisibility(View.VISIBLE);
         } else {
             holder.binding.deleteImageButton.setVisibility(View.INVISIBLE);
         }
-
+        /*
         if(whoFavorited != null){
             if(whoFavorited.contains(userManager.getCurrentUser().getEmail())){
                 holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_fill_icon);
@@ -65,6 +68,46 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.RecipeHold
                 holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_icon);
             }
         }
+
+         */
+
+        System.out.println("favorites size: " + favorites.size());
+
+        if(favorites.contains(recipeList.get(position))){
+            System.out.println("içinde var");
+            holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_fill_icon);
+
+        }else{
+            System.out.println("içinde yok");
+            holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_icon);
+        }
+
+
+
+
+
+        /*
+        for(Recipe recipe :favorites){
+            if(recipe.getId().equals(recipeList.get(position).getId())){
+                holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_fill_icon);
+            }
+        }
+
+         */
+        /*
+        String favoritesNames = "";
+        for (Recipe recipe : favorites){
+            favoritesNames = favoritesNames + " "+ recipe.getId();
+        }
+
+        if(favoritesNames.contains(recipeList.get(position).getId())){
+            holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_fill_icon);
+        }else{
+            holder.binding.favDeleteImageButton.setImageResource(R.drawable.heart_icon);
+        }
+
+         */
+
 
 
 

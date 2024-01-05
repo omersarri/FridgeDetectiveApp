@@ -15,7 +15,7 @@
         android:layout_marginTop="10dp"
         android:fontFamily="@font/roboto_mono"
         android:text="Dolabına Malzeme Ekle"
-        android:textSize="24sp"
+        android:textSize="28sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

@@ -10,7 +10,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.room.Room;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,11 +27,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omersari.hesaplama.AllRecipesActivity;
 import com.omersari.hesaplama.R;
 import com.omersari.hesaplama.RecipeDetailsActivity;
 import com.omersari.hesaplama.adapter.RecipeAdapter;
 import com.omersari.hesaplama.adapter.RecipeRecyclerViewInterface;
+import com.omersari.hesaplama.database.IngredientDao;
+import com.omersari.hesaplama.database.IngredientDatabase;
 import com.omersari.hesaplama.database.LocalDataManager;
+import com.omersari.hesaplama.database.NetworkUtils;
 import com.omersari.hesaplama.databinding.FragmentHomeBinding;
 import com.omersari.hesaplama.model.Ingredient;
 import com.omersari.hesaplama.model.IngredientManager;
@@ -42,7 +48,12 @@ import com.squareup.picasso.Picasso;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class HomeFragment extends Fragment implements RecipeRecyclerViewInterface {
@@ -51,7 +62,8 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
     private FragmentHomeBinding binding;
     private ArrayList<Recipe> matchedRecipeList;
     private ArrayList<Recipe> allRecipeList;
-    private ArrayList<Ingredient> ingredientList;
+    private ArrayList<Recipe> favorites;
+    private ArrayList<Ingredient> ingredientArrayList;
     private LocalDataManager localDataManager;
     private LocalDate date = null;
     private String refRandomNo;
@@ -61,6 +73,9 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
     private FirebaseAuth auth;
     private String email;
     FirebaseFirestore firebaseFirestore;
+    IngredientDatabase ingredientDatabase;
+    IngredientDao ingredientDao;
+    CompositeDisposable compositeDisposable = new CompositeDisposable();
 
 
     @Override
@@ -68,12 +83,17 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
         super.onCreate(savedInstanceState);
         matchedRecipeList = new ArrayList<>();
         allRecipeList = new ArrayList<>();
-        ingredientList = new ArrayList<>();
+
+        ingredientArrayList = new ArrayList<>();
         ingredientManager = IngredientManager.getInstance();
         recipeManager = RecipeManager.getInstance();
         auth = FirebaseAuth.getInstance();
+        favorites = recipeManager.getFavorites();
+        System.out.println("favorites size home:"+ favorites.size());
 
         email = auth.getCurrentUser().getEmail();
+        ingredientDatabase = Room.databaseBuilder(getActivity(),IngredientDatabase.class, "Ingredient").build();
+        ingredientDao = ingredientDatabase.ingredientDao();
 
 
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -87,7 +107,8 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             date = LocalDate.now();
         }
-
+        binding.infoText.setText("Eşleşen tarif bulunmuyor ya da dolabınız boş!");
+        binding.infoText.setVisibility(View.VISIBLE);
 
         binding.dailyImageView.setVisibility(View.INVISIBLE);
         binding.recipeNameTextView.setVisibility(View.INVISIBLE);
@@ -95,7 +116,8 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
         binding.cookTimeTextView.setVisibility(View.INVISIBLE);
         binding.servingTextView.setVisibility(View.INVISIBLE);
 
-        getUserIngredients();
+        getMyIngredients();
+        seeAllButtonClick();
 
 
 
@@ -145,15 +167,30 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
 
     }
+    private void getMyIngredients() {
+        compositeDisposable.add(ingredientDao.getAll()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(HomeFragment.this::handleResponse));
+    }
+
+    private void handleResponse(List<Ingredient> ingredientList) {
+        if(ingredientArrayList.size() == 0){
+            ingredientArrayList.addAll(ingredientList);
+            getRecipes();
+        }
 
 
 
+    }
+
+    // get user ingredients from firebase
+    /*
     private void getUserIngredients() {
         ingredientManager.getUserIngredients(email, new IngredientManager.GetIngredientsCallback() {
             @Override
             public void onSuccess(ArrayList<Ingredient> ingredientArrayList) {
                 ingredientList.addAll(ingredientArrayList) ;
-                System.out.println(ingredientArrayList.get(0));
                 getRecipes();
             }
 
@@ -166,6 +203,7 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
 
     };
+    */
 
     private void getRecipes() {
         recipeManager.getRecipes(new RecipeManager.GetRecipesCallback() {
@@ -175,10 +213,9 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
                 allRecipeList.addAll(recipeArrayList);
                 for(Recipe recipe : recipeArrayList) {
                     ArrayList<Ingredient> matchedIngredients = new ArrayList<>();
-                    for(Ingredient ingredient : ingredientList){
+                    for(Ingredient ingredient : ingredientArrayList){
                         if(recipe.getIngredients().toLowerCase().contains(ingredient.getName().toLowerCase())){
                             matchedIngredients.add(ingredient);
-                            System.out.println("düzelditldi");
                         }
                     }
                     recipe.setMatchedIngredient(matchedIngredients);
@@ -187,21 +224,25 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
                 for (Recipe recipe : recipeArrayList){
                     if(recipe.getMatchedIngredient().size() != 0){
                         matchedRecipeList.add(recipe);
-                        System.out.println("eklendi");
                     }
                 }
-
                 binding.recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recipeAdapter = new RecipeAdapter(matchedRecipeList, (RecipeRecyclerViewInterface) HomeFragment.this);
+                recipeAdapter = new RecipeAdapter(matchedRecipeList, favorites, HomeFragment.this);
                 binding.recyclerView.setAdapter(recipeAdapter);
                 dailyRecipe(allRecipeList);
-                binding.dailyImageView.setVisibility(View.VISIBLE);
-
                 binding.recipeNameTextView.setVisibility(View.VISIBLE);
                 binding.prepTimeTextView.setVisibility(View.VISIBLE);
                 binding.cookTimeTextView.setVisibility(View.VISIBLE);
                 binding.progressBar.setVisibility(View.INVISIBLE);
                 binding.servingTextView.setVisibility(View.VISIBLE);
+                binding.dailyImageView.setVisibility(View.VISIBLE);
+                if(matchedRecipeList.size() != 0){
+                    binding.infoText.setVisibility(View.INVISIBLE);
+                }else{
+                    binding.infoText.setVisibility(View.VISIBLE);
+                }
+
+
 
                 recipeAdapter.notifyDataSetChanged();
             }
@@ -243,33 +284,91 @@ public class HomeFragment extends Fragment implements RecipeRecyclerViewInterfac
 
     @Override
     public void deleteImageButtonClick(int position) {
-        recipeManager.deleteRecipe(matchedRecipeList.get(position).getId(), new RecipeManager.DeleteRecipeCallback() {
-            @Override
-            public void onSuccess() {
-                recipeAdapter.notifyItemRemoved(position);
-                //getActivity().getSupportFragmentManager().beginTransaction().replace(HomeFragment.this.getId(), new HomeFragment()).commit();
-            }
+        if(NetworkUtils.isNetworkAvailable(getActivity())){
+            recipeManager.deleteRecipe(matchedRecipeList.get(position).getId(), new RecipeManager.DeleteRecipeCallback() {
+                @Override
+                public void onSuccess() {
+                    matchedRecipeList.remove(position);
+                    allRecipeList.remove(matchedRecipeList.get(position));
+                    recipeAdapter.notifyItemRemoved(position);
+                    //getActivity().getSupportFragmentManager().beginTransaction().replace(HomeFragment.this.getId(), new HomeFragment()).commit();
+                }
 
-            @Override
-            public void onFailure(String errorMessage) {
+                @Override
+                public void onFailure(String errorMessage) {
 
-            }
-        });
+                }
+            });
+        }else{
+            Toast.makeText(getActivity(), "Silebilmek için çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
     public void favImageButtonClick(int position) {
-        Recipe clickedRecipe = matchedRecipeList.get(position);
-        ArrayList<String> whoFavorited = clickedRecipe.getWhoFavorited();
 
-        if (whoFavorited.contains(email)) {
-            whoFavorited.remove(email);
+        if(favorites.contains(matchedRecipeList.get(position))){
+            recipeManager.deleteFavorite(getActivity(), matchedRecipeList.get(position), new RecipeManager.DeleteRecipeCallback() {
+                @Override
+                public void onSuccess() {
+                    favorites.remove(matchedRecipeList.get(position));
+                    recipeAdapter.notifyItemChanged(position);
+                }
 
-        } else {
-            whoFavorited.add(email);
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }else{
+            recipeManager.addFavorite(getActivity(), matchedRecipeList.get(position), new RecipeManager.AddRecipeCallback() {
+                @Override
+                public void onSuccess() {
+                    favorites.add(matchedRecipeList.get(position));
+                    recipeAdapter.notifyItemChanged(position);
+                }
+
+                @Override
+                public void onFailure(String errorMessage) {
+                    Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        firebaseFirestore.collection("Recipes").document(clickedRecipe.getId()).update("whoFavorited", whoFavorited);
-        recipeAdapter.notifyItemChanged(position);
+
+
+
+
+
+        /*
+        if(NetworkUtils.isNetworkAvailable(getActivity())){
+            Recipe clickedRecipe = matchedRecipeList.get(position);
+            ArrayList<String> whoFavorited = clickedRecipe.getWhoFavorited();
+
+            if (whoFavorited.contains(email)) {
+                whoFavorited.remove(email);
+
+            } else {
+                whoFavorited.add(email);
+            }
+            firebaseFirestore.collection("Recipes").document(clickedRecipe.getId()).update("whoFavorited", whoFavorited);
+            recipeAdapter.notifyItemChanged(position);
+        }else{
+            Toast.makeText(getActivity(), "Favoriler için çevrimiçi olun!", Toast.LENGTH_SHORT).show();
+        }
+
+         */
+    }
+
+    private void seeAllButtonClick() {
+        binding.seeAllButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), AllRecipesActivity.class);
+                intent.putExtra("allRecipes", allRecipeList);
+                startActivity(intent);
+            }
+        });
     }
 
 

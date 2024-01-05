@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "207314016233",
+    "project_id": "recipeapp-43843",
+    "storage_bucket": "recipeapp-43843.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:207314016233:android:54551b3f60f1cf0a6f1d78",
+        "android_client_info": {
+          "package_name": "com.omersari.hesaplama"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeX2UiIDl8wKznFKrH-WT_YxLO-v4x3LI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -19,6 +19,8 @@
     <color name="border_color">#cecece</color>
     <color name="grey">#aaa</color>
     <color name="darkGrey">#ff424242</color>
+    <color name="bottomNavIconColor">#aaa</color>
+    <color name="bottomNavTextColor">#aaa</color>
 
 
 </resources>
