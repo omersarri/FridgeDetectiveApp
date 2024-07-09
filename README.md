@@ -1,5 +1,5 @@
 Login Screen With Firebase
-![Screenshot_20240709_170720](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/1eb7efe3-4289-4291-9f12-a04c59dd3aaa)
+![Screenshot_20240709_170720](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/b576acbe-1b96-4ea0-9985-886f7afb49e9)
 Sign Up Screen With Firebase
 ![Screenshot_20240709_170731](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/9cd69577-8835-4109-b132-a5ee4a911171)
 
