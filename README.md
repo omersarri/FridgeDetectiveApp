@@ -1,7 +1,7 @@
 Login Screen With Firebase
 ![Screenshot_20240709_170720](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/b576acbe-1b96-4ea0-9985-886f7afb49e9)
 Sign Up Screen With Firebase
-![Screenshot_20240709_170731](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/9cd69577-8835-4109-b132-a5ee4a911171)
+![Screenshot_20240709_170731](https://github.com/omersarri/FridgeDetectiveApp/assets/93217900/9cd69577-8835-4109-b132-a5ee4a911171 =250x250)
 
 Home Screen
 In this screen you can see recipes that match with your ingredients, make favorite them. With "Tümünü Gör" button you can inspect all the recipes. Also there is dail recipe section on the top.
